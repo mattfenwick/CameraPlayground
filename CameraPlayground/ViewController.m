@@ -99,6 +99,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 */
     AVCaptureVideoPreviewLayer *previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    previewLayer.frame = CGRectMake(0, 0, 200, 200);
     // TODO previewLayer framesize and orientation?
     CALayer *viewLayer = [self.previewLayer layer];
     [viewLayer setMasksToBounds:YES];
@@ -113,7 +114,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     AVAssetWriter *assetWriter = [[AVAssetWriter alloc] initWithURL:url fileType:AVFileTypeMPEG4 error:&error];
     if (error) return;
     
-    NSMutableDictionary *newSettings =  [[cameraOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4] mutableCopy];
+    NSMutableDictionary *newSettings = [[cameraOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4] mutableCopy];
     NSMutableDictionary *newProperties = [[newSettings objectForKey:AVVideoCompressionPropertiesKey] mutableCopy];
     newProperties[AVVideoMaxKeyFrameIntervalDurationKey] = @(0.25);
     [newSettings setObject:newProperties forKey:AVVideoCompressionPropertiesKey];
@@ -133,6 +134,11 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     _sourceTimeWrittenToMovie = NO;
     if (![assetWriter startWriting]) return;
     */
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    //NSLog(@"keyPath: %@  obj: %@  change: %@  context: %@", keyPath, object, change, context);
 }
 
 @end
