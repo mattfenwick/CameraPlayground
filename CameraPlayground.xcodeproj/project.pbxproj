@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9934105A1A894C8400DF4409 /* CameraPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 993410591A894C8400DF4409 /* CameraPicker.m */; };
 		996737C41A85601C00190298 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 996737C31A85601C00190298 /* main.m */; };
 		996737C71A85601C00190298 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 996737C61A85601C00190298 /* AppDelegate.m */; };
 		996737CA1A85601C00190298 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 996737C91A85601C00190298 /* ViewController.m */; };
@@ -27,6 +28,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		993410581A894C8400DF4409 /* CameraPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraPicker.h; sourceTree = "<group>"; };
+		993410591A894C8400DF4409 /* CameraPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraPicker.m; sourceTree = "<group>"; };
 		996737BE1A85601C00190298 /* CameraPlayground.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraPlayground.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		996737C21A85601C00190298 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		996737C31A85601C00190298 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -89,6 +92,8 @@
 				996737CE1A85601C00190298 /* Images.xcassets */,
 				996737D01A85601C00190298 /* LaunchScreen.xib */,
 				996737C11A85601C00190298 /* Supporting Files */,
+				993410581A894C8400DF4409 /* CameraPicker.h */,
+				993410591A894C8400DF4409 /* CameraPicker.m */,
 			);
 			path = CameraPlayground;
 			sourceTree = "<group>";
@@ -219,6 +224,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9934105A1A894C8400DF4409 /* CameraPicker.m in Sources */,
 				996737CA1A85601C00190298 /* ViewController.m in Sources */,
 				996737C71A85601C00190298 /* AppDelegate.m in Sources */,
 				996737C41A85601C00190298 /* main.m in Sources */,
@@ -414,6 +420,7 @@
 				996737E31A85601C00190298 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		996737E41A85601C00190298 /* Build configuration list for PBXNativeTarget "CameraPlaygroundTests" */ = {
 			isa = XCConfigurationList;
@@ -422,6 +429,7 @@
 				996737E61A85601C00190298 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

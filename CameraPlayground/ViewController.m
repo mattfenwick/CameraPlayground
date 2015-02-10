@@ -7,12 +7,17 @@
 //
 @import AVFoundation;
 #import "ViewController.h"
+#import "CameraPicker.h"
 
 
 @interface ViewController ()
 
 @property (nonatomic, strong) IBOutlet UIButton *record;
-@property (nonatomic, strong) IBOutlet UIView *previewLayer;
+@property (nonatomic, strong) IBOutlet UIView *previewView;
+@property (nonatomic, strong) IBOutlet UIPickerView *camerasPicker;
+@property (nonatomic, strong) CameraPicker *camerasController;
+
+@property (nonatomic, strong) AVCaptureDevice *camera;
 
 @end
 
@@ -25,11 +30,35 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    self.camerasController = [[CameraPicker alloc] init];
+    self.camerasController.selectionDidChange = ^(NSInteger row)
+    {
+        NSLog(@"hopefully, eventually, this sets the camera");
+    };
+    self.camerasPicker.delegate = self.camerasController;
+    self.camerasPicker.dataSource = self.camerasController;
+    [self inspectDevices];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)focusExposureTapped:(id)sender
+{
+    NSError *error;
+    if ([self.camera lockForConfiguration:&error])
+    {
+        CGRect screen = [UIApplication sharedApplication].keyWindow.bounds;
+        NSLog(@"screen: %@", NSStringFromCGRect(screen));
+        CGPoint middle = CGPointMake(screen.size.width / 2.0, screen.size.height / 2.0);
+        [self.camera setFocusPointOfInterest:middle];
+        [self.camera setFocusMode:AVCaptureFocusModeAutoFocus];
+        [self.camera setExposurePointOfInterest:middle];
+        [self.camera setExposureMode:AVCaptureExposureModeAutoExpose];
+        [self.camera unlockForConfiguration];
+    }
 }
 
 - (IBAction)recordTapped:(id)sender
@@ -38,6 +67,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     AVCaptureSession *session = [[AVCaptureSession alloc] init];
     
     NSArray *audioDevices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
+    NSLog(@"audo devices: %lu  %@", (unsigned long)[audioDevices count], audioDevices);
     if ([audioDevices count] > 0)
     {
         AVCaptureDevice *audioDevice = audioDevices[0];
@@ -82,6 +112,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     AVCaptureDeviceInput *cameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:camera error:nil];
     if (!cameraInput || ![session canAddInput:cameraInput]) return;
     [session addInput:cameraInput];
+    self.camera = camera;
     // TODO set the FPS
 /*
     AVCaptureVideoDataOutput *cameraOutput = [[AVCaptureVideoDataOutput alloc] init];
@@ -99,9 +130,10 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 */
     AVCaptureVideoPreviewLayer *previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-    previewLayer.frame = CGRectMake(0, 0, 200, 200);
-    // TODO previewLayer framesize and orientation?
-    CALayer *viewLayer = [self.previewLayer layer];
+//    previewLayer.frame = CGRectMake(0, 0, 200, 200);
+    previewLayer.frame = [UIApplication sharedApplication].keyWindow.frame;
+    NSLog(@"%@", NSStringFromCGRect(previewLayer.frame));
+    CALayer *viewLayer = [self.previewView layer];
     [viewLayer setMasksToBounds:YES];
     dispatch_async(dispatch_get_main_queue(), ^{
         [viewLayer addSublayer:previewLayer];
@@ -138,7 +170,41 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    //NSLog(@"keyPath: %@  obj: %@  change: %@  context: %@", keyPath, object, change, context);
+    NSLog(@"keyPath: %@  obj: %@  change: %@", keyPath, object, change);
+}
+
+- (void)inspectDevices
+{
+    for (AVCaptureDevice *device in [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo])
+    {
+        NSLog(@"device: %@", device);
+        [self checkOutCameraSettings:device];
+    }
+}
+
+- (void)checkOutCameraSettings:(AVCaptureDevice *)device
+{
+    for (AVCaptureDeviceFormat *format in [device formats])
+    {
+        CMVideoDimensions dims = CMVideoFormatDescriptionGetDimensions([format formatDescription]);
+        NSLog(@"resolution: width %d  height %d  %f  %f  %f  %d  %d  %f  %d  %f",//  %f  %f  %f  %d  %@  %f  %@  %f",
+                dims.width, dims.height,
+//              format.formatDescription,
+              format.videoFieldOfView,
+              format.videoMaxZoomFactor,
+              format.videoZoomFactorUpscaleThreshold,
+              format.videoHDRSupported,
+              format.maxExposureDuration,
+              format.maxISO,
+              format.minExposureDuration,
+              format.minISO);
+        for (AVFrameRateRange *range in format.videoSupportedFrameRateRanges)
+        {
+            NSLog(@"min: %f    max: %f", range.minFrameRate, range.maxFrameRate);
+        }
+        NSLog(@"");
+    }
+    NSLog(@"done checking out camera settings");
 }
 
 @end
