@@ -8,6 +8,7 @@
 @import AVFoundation;
 #import "ViewController.h"
 #import "CameraPicker.h"
+#import "VideoWriter.h"
 
 
 @interface ViewController ()
@@ -16,6 +17,9 @@
 @property (nonatomic, strong) IBOutlet UIView *previewView;
 @property (nonatomic, strong) IBOutlet UIPickerView *camerasPicker;
 @property (nonatomic, strong) CameraPicker *camerasController;
+@property (nonatomic, strong) VideoWriter *videoWriter;
+@property (nonatomic, strong) dispatch_queue_t videoCaptureQueue;
+@property (nonatomic, strong) dispatch_queue_t audioCaptureQueue;
 
 @property (nonatomic, strong) AVCaptureDevice *camera;
 
@@ -31,8 +35,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     self.camerasController = [[CameraPicker alloc] init];
-    self.camerasController.selectionDidChange = ^(NSInteger row)
-    {
+    self.camerasController.selectionDidChange = ^(NSInteger row) {
         NSLog(@"hopefully, eventually, this sets the camera");
     };
     self.camerasPicker.delegate = self.camerasController;
@@ -64,6 +67,17 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 - (IBAction)recordTapped:(id)sender
 {
     NSLog(@"record");
+    
+    if (self.videoWriter)
+    {
+        dispatch_async(self.videoCaptureQueue, ^{
+            [self.videoWriter.writer finishWritingWithCompletionHandler:^{
+                NSLog(@"done ... ?");// nothing to do?
+            }];
+        });
+        return;
+    }
+    
     AVCaptureSession *session = [[AVCaptureSession alloc] init];
     
     NSArray *audioDevices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
@@ -78,18 +92,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         }
         [session addInput:audioInput];
     }
-/*
-    AVCaptureAudioDataOutput *audioOutput = [[AVCaptureAudioDataOutput alloc] init];
-    dispatch_queue_t audioCaptureQueue = dispatch_queue_create("Audio Capture Queue", DISPATCH_QUEUE_SERIAL);
-    [audioOutput setSampleBufferDelegate:self queue:audioCaptureQueue];
-//    dispatch_release(audioCaptureQueue);
-    if (![session canAddOutput:audioOutput])
-    {
-        return;
-    }
-    [session addOutput:audioOutput];
-    AVCaptureConnection *audioConnection = [audioOutput connectionWithMediaType:AVMediaTypeAudio];
- */
+
     AVCaptureDevicePosition position = AVCaptureDevicePositionBack;
     NSArray *videoDevices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
     AVCaptureDevice *camera = nil;
@@ -114,20 +117,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     [session addInput:cameraInput];
     self.camera = camera;
     // TODO set the FPS
-/*
-    AVCaptureVideoDataOutput *cameraOutput = [[AVCaptureVideoDataOutput alloc] init];
-    [cameraOutput setAlwaysDiscardsLateVideoFrames:NO];
-    if (![session canAddOutput:cameraOutput]) return;
-    [session addOutput:cameraOutput];
-    AVCaptureConnection *videoConnection = [cameraOutput connectionWithMediaType:AVMediaTypeVideo];
-    if ([videoConnection isVideoStabilizationSupported])
-    {
-        [videoConnection setEnablesVideoStabilizationWhenAvailable:YES];
-    }
-    dispatch_queue_t videoCaptureQueue = dispatch_queue_create("Video Capture Queue", DISPATCH_QUEUE_SERIAL);
-    [cameraOutput setSampleBufferDelegate:self queue:videoCaptureQueue];
-//    dispatch_release(videoCaptureQueue);
-*/
+
     AVCaptureVideoPreviewLayer *previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
 //    previewLayer.frame = CGRectMake(0, 0, 200, 200);
@@ -140,32 +130,61 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     });
     
     [session startRunning];
-    /*
-    NSError *error;
-    NSURL *url = [[NSURL alloc] initFileURLWithPath:@"myvideo.mp4"];
-    AVAssetWriter *assetWriter = [[AVAssetWriter alloc] initWithURL:url fileType:AVFileTypeMPEG4 error:&error];
-    if (error) return;
     
-    NSMutableDictionary *newSettings = [[cameraOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4] mutableCopy];
-    NSMutableDictionary *newProperties = [[newSettings objectForKey:AVVideoCompressionPropertiesKey] mutableCopy];
-    newProperties[AVVideoMaxKeyFrameIntervalDurationKey] = @(0.25);
-    [newSettings setObject:newProperties forKey:AVVideoCompressionPropertiesKey];
-    
-    NSLog(@"%@", newSettings);
-    
-    AVAssetWriterInput *assetWriterVideoIn = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:newSettings];
-    assetWriterVideoIn.expectsMediaDataInRealTime = YES;
-    
-    if (![assetWriter canAddInput:assetWriterVideoIn]) return;
-    
-    NSDictionary *recommendedSettings = [audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4];
-    AVAssetWriterInput *assetWriterAudioIn = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:recommendedSettings];
-    assetWriterAudioIn.expectsMediaDataInRealTime = YES;
-    if (![assetWriter canAddInput:assetWriterAudioIn]) return;
-    
-    _sourceTimeWrittenToMovie = NO;
-    if (![assetWriter startWriting]) return;
-    */
+    AVCaptureVideoDataOutput *videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+    [videoOutput setAlwaysDiscardsLateVideoFrames:NO];
+    if (![session canAddOutput:videoOutput])
+    {
+        return;
+    }
+    [session addOutput:videoOutput];
+
+    AVCaptureAudioDataOutput *audioOutput = [[AVCaptureAudioDataOutput alloc] init];
+    if (![session canAddOutput:audioOutput])
+    {
+        return;
+    }
+    [session addOutput:audioOutput];
+
+    NSMutableDictionary *videoSettings = [[videoOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4] mutableCopy];
+    NSMutableDictionary *audioSettings = [[audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4] mutableCopy];
+
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    if ([paths count] == 0)
+    {
+        return;
+    }
+    NSString *documentsPath = [paths objectAtIndex:0]; //Get the docs directory
+    NSString *filePath = [documentsPath stringByAppendingPathComponent:@"myvideo.mpeg4"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:filePath])
+    {
+        [fileManager removeItemAtPath:filePath error:nil];
+    }
+    NSURL *url = [NSURL fileURLWithPath:filePath];
+
+    VideoWriter *videoWriter = [[VideoWriter alloc] initWithURL:url audioSettings:audioSettings videoSettings:videoSettings];
+    if (![videoWriter.writer startWriting])
+    {
+        NSError *error = [videoWriter.writer error];
+        NSLog(@"error: %@", error);
+        return;
+    }
+    dispatch_queue_t videoCaptureQueue = dispatch_queue_create("Video Capture Queue", DISPATCH_QUEUE_SERIAL);
+    [videoOutput setSampleBufferDelegate:videoWriter queue:videoCaptureQueue];
+//    dispatch_release(videoCaptureQueue); // iOS version thing?
+    dispatch_queue_t audioCaptureQueue = dispatch_queue_create("Audio Capture Queue", DISPATCH_QUEUE_SERIAL);
+    [audioOutput setSampleBufferDelegate:videoWriter.audioSampleBufferDelegate queue:audioCaptureQueue];
+//    dispatch_release(audioCaptureQueue);
+
+    self.videoWriter = videoWriter;
+    self.videoCaptureQueue = videoCaptureQueue;
+    self.audioCaptureQueue = audioCaptureQueue;
+}
+
+- (void)cleanUpResources
+{
+    // TODO
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
