@@ -115,6 +115,7 @@
 {
     self.frameCount++;
     [self.droppedFrameIndices addObject:[NSNumber numberWithInteger:self.frameCount]];
+//    CFShow(sampleBuffer);
 }
 
 
