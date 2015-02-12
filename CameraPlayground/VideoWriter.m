@@ -9,56 +9,20 @@
 #import "VideoWriter.h"
 
 
-@interface AudioSampleBufferDelegate : NSObject <AVCaptureAudioDataOutputSampleBufferDelegate>
-
-- (instancetype)initWithWriterInput:(AVAssetWriterInput *)audioInput;
-
-@property (nonatomic, strong) AVAssetWriterInput *audioInput;
-
-@end
-
-
-@implementation AudioSampleBufferDelegate
-
-- (instancetype)initWithWriterInput:(AVAssetWriterInput *)audioInput
-{
-    self = [super init];
-    if (self)
-    {
-        self.audioInput = audioInput;
-    }
-    return self;
-}
-
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
-{
-    return;
-    CFRetain(sampleBuffer);
-    if (self.audioInput.readyForMoreMediaData)
-    {
-        if (![self.audioInput appendSampleBuffer:sampleBuffer])
-        {
-            // DLog(@"%@", [self.writer error]);
-        }
-    }
-    // else -- ???
-    CFRelease(sampleBuffer);
-}
-
-@end
-
-
 @interface VideoWriter ()
 
+@property (nonatomic, strong) AVCaptureAudioDataOutput *audioOutput;
+@property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
+@property (nonatomic, strong) AVCaptureConnection *audioConnection;
+@property (nonatomic, strong) AVCaptureConnection *videoConnection;
 @property (nonatomic) BOOL sourceTimeWrittenToMovie;
-@property (nonatomic) NSInteger droppedFrameCount;
 
 @end
 
 
 @implementation VideoWriter
 
-- (instancetype)initWithURL:(NSURL *)url audioSettings:(NSMutableDictionary *)audioSettings videoSettings:(NSMutableDictionary *)videoSettings
+- (instancetype)initWithURL:(NSURL *)url audioOutput:(AVCaptureAudioDataOutput *)audioOutput videoOutput:(AVCaptureVideoDataOutput *)videoOutput
 {
     self = [super init];
     if (self)
@@ -66,6 +30,9 @@
         NSError *error;
         self.writer = [[AVAssetWriter alloc] initWithURL:url fileType:AVFileTypeMPEG4 error:&error];
         if (error) return nil;
+        
+        NSMutableDictionary *videoSettings = [[videoOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4] mutableCopy];
+        NSMutableDictionary *audioSettings = [[audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4] mutableCopy];
         
         self.audioInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:audioSettings];
         self.audioInput.expectsMediaDataInRealTime = YES;
@@ -75,9 +42,13 @@
         }
         [self.writer addInput:self.audioInput];
         
+        NSMutableDictionary *newVideoSettings = [videoSettings mutableCopy];
+        NSMutableDictionary *newVideoProperties = [newVideoSettings[AVVideoCompressionPropertiesKey] mutableCopy];
+        newVideoProperties[AVVideoMaxKeyFrameIntervalDurationKey] = @(0.25);
+        newVideoSettings[AVVideoCompressionPropertiesKey] = newVideoProperties;
         // does this work with the videoSettings stuff?  there was a lot of mumbo-jumbo about this in UBCameraViewController
-        videoSettings[AVVideoCompressionPropertiesKey][AVVideoMaxKeyFrameIntervalDurationKey] = @(0.25);
-        self.videoInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
+/*        videoSettings[AVVideoCompressionPropertiesKey][AVVideoMaxKeyFrameIntervalDurationKey] = @(0.25); */
+        self.videoInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:newVideoSettings];
         self.videoInput.expectsMediaDataInRealTime = YES;
         if (![self.writer canAddInput:self.videoInput])
         {
@@ -86,15 +57,12 @@
         [self.writer addInput:self.videoInput];
         // some more fields
         self.sourceTimeWrittenToMovie = NO;
-        self.droppedFrameCount = 0;
-        self.audioSampleBufferDelegate = [[AudioSampleBufferDelegate alloc] initWithWriterInput:self.audioInput];
+        self.frameCount = 0;
+        self.droppedFrameIndices = [NSMutableArray array];
+        self.audioConnection = [audioOutput connectionWithMediaType:AVMediaTypeAudio];
+        self.videoConnection = [videoOutput connectionWithMediaType:AVMediaTypeVideo];
     }
     return self;
-}
-
-- (BOOL)startWriting
-{
-    return [self.writer startWriting];
 }
 
 
@@ -103,9 +71,10 @@
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
     CFRetain(sampleBuffer);
+    if (connection == self.videoConnection)
+    {
         if (!self.sourceTimeWrittenToMovie)
         {
-            self.droppedFrameCount = 0;
             self.sourceTimeWrittenToMovie = YES;
             CMTime sourceTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
             [self.writer startSessionAtSourceTime:sourceTime];
@@ -119,16 +88,34 @@
             }
         }
         // else -- ???
+    }
+    else if (connection == self.audioConnection)
+    {
+        if (self.audioInput.readyForMoreMediaData)
+        {
+            if (![self.audioInput appendSampleBuffer:sampleBuffer])
+            {
+                // DLog(@"%@", [self.writer error]);
+            }
+        }
+        // else -- ???
+    }
+    else
+    {
+        // ?? shouldn't have happened
+    }
     CFRelease(sampleBuffer);
+    self.frameCount++;
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-    //
+    self.frameCount++;
+    [self.droppedFrameIndices addObject:[NSNumber numberWithInteger:self.frameCount]];
 }
 
 
-#pragma mark - AVCaptureFileOutputRecordingDelegate
+#pragma mark - AVCaptureFileOutputRecordingDelegate -- this is only if you're using an AVCaptureMovieFileOutput
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
 {

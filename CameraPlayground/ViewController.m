@@ -70,9 +70,13 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     
     if (self.videoWriter)
     {
+        NSLog(@"going to stop recording");
+//        [self.videoWriter.videoInput markAsFinished];
+        [self.videoWriter.audioInput markAsFinished];
         dispatch_async(self.videoCaptureQueue, ^{
+            NSLog(@"going to finish writing");
             [self.videoWriter.writer finishWritingWithCompletionHandler:^{
-                NSLog(@"done ... ?");// nothing to do?
+                NSLog(@"done ... %d frames, %d dropped.  indices: %@", self.videoWriter.frameCount, [self.videoWriter.droppedFrameIndices count], self.videoWriter.droppedFrameIndices);
             }];
         });
         return;
@@ -146,16 +150,13 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     }
     [session addOutput:audioOutput];
 
-    NSMutableDictionary *videoSettings = [[videoOutput recommendedVideoSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4] mutableCopy];
-    NSMutableDictionary *audioSettings = [[audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4] mutableCopy];
-
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     if ([paths count] == 0)
     {
         return;
     }
-    NSString *documentsPath = [paths objectAtIndex:0]; //Get the docs directory
-    NSString *filePath = [documentsPath stringByAppendingPathComponent:@"myvideo.mpeg4"];
+    NSString *documentsPath = [paths objectAtIndex:0];
+    NSString *filePath = [documentsPath stringByAppendingPathComponent:@"myvideo.mov"];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:filePath])
     {
@@ -163,7 +164,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     }
     NSURL *url = [NSURL fileURLWithPath:filePath];
 
-    VideoWriter *videoWriter = [[VideoWriter alloc] initWithURL:url audioSettings:audioSettings videoSettings:videoSettings];
+    VideoWriter *videoWriter = [[VideoWriter alloc] initWithURL:url audioOutput:audioOutput videoOutput:videoOutput];
     if (![videoWriter.writer startWriting])
     {
         NSError *error = [videoWriter.writer error];
@@ -174,7 +175,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     [videoOutput setSampleBufferDelegate:videoWriter queue:videoCaptureQueue];
 //    dispatch_release(videoCaptureQueue); // iOS version thing?
     dispatch_queue_t audioCaptureQueue = dispatch_queue_create("Audio Capture Queue", DISPATCH_QUEUE_SERIAL);
-    [audioOutput setSampleBufferDelegate:videoWriter.audioSampleBufferDelegate queue:audioCaptureQueue];
+    [audioOutput setSampleBufferDelegate:videoWriter queue:audioCaptureQueue];
 //    dispatch_release(audioCaptureQueue);
 
     self.videoWriter = videoWriter;

@@ -10,16 +10,15 @@
 @import AVFoundation;
 
 
-// argh, I hate that the audio and video delegates have the same names
-@interface VideoWriter : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureFileOutputRecordingDelegate>
+// argh, I hate that the audio and video delegates have the same methods names
+@interface VideoWriter : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureFileOutputRecordingDelegate, AVCaptureAudioDataOutputSampleBufferDelegate>
 
-- (instancetype)initWithURL:(NSURL *)url audioSettings:(NSMutableDictionary *)audioSettings videoSettings:(NSMutableDictionary *)videoSettings;
-
-- (BOOL)startWriting;
+- (instancetype)initWithURL:(NSURL *)url audioOutput:(AVCaptureAudioDataOutput *)audioSettings videoOutput:(AVCaptureVideoDataOutput *)videoOutput;
 
 @property (nonatomic, strong) AVAssetWriter *writer;
 @property (nonatomic, strong) AVAssetWriterInput *videoInput;
 @property (nonatomic, strong) AVAssetWriterInput *audioInput;
-@property (nonatomic, strong) id<AVCaptureAudioDataOutputSampleBufferDelegate> audioSampleBufferDelegate;
+@property (nonatomic) NSInteger frameCount;
+@property (nonatomic, strong) NSMutableArray *droppedFrameIndices;
 
 @end
