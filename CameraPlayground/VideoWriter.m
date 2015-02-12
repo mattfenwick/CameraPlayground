@@ -70,6 +70,8 @@
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
+    if (!self.recording) return;
+    
     CFRetain(sampleBuffer);
     if (connection == self.videoConnection)
     {

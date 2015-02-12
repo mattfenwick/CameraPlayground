@@ -71,8 +71,8 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     if (self.videoWriter)
     {
         NSLog(@"going to stop recording");
-//        [self.videoWriter.videoInput markAsFinished];
-        [self.videoWriter.audioInput markAsFinished];
+        self.videoWriter.recording = NO;
+
         dispatch_async(self.videoCaptureQueue, ^{
             NSLog(@"going to finish writing");
             [self.videoWriter.writer finishWritingWithCompletionHandler:^{
@@ -165,6 +165,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     NSURL *url = [NSURL fileURLWithPath:filePath];
 
     VideoWriter *videoWriter = [[VideoWriter alloc] initWithURL:url audioOutput:audioOutput videoOutput:videoOutput];
+    videoWriter.recording = YES;
     if (![videoWriter.writer startWriting])
     {
         NSError *error = [videoWriter.writer error];

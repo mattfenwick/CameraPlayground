@@ -20,5 +20,6 @@
 @property (nonatomic, strong) AVAssetWriterInput *audioInput;
 @property (nonatomic) NSInteger frameCount;
 @property (nonatomic, strong) NSMutableArray *droppedFrameIndices;
+@property (nonatomic) BOOL recording;
 
 @end
