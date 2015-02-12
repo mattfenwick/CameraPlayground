@@ -20,8 +20,11 @@
 @property (nonatomic, strong) VideoWriter *videoWriter;
 @property (nonatomic, strong) dispatch_queue_t videoCaptureQueue;
 @property (nonatomic, strong) dispatch_queue_t audioCaptureQueue;
-
+@property (nonatomic, strong) AVCaptureVideoDataOutput *videoOutput;
+@property (nonatomic, strong) AVCaptureAudioDataOutput *audioOutput;
+@property (nonatomic) CMTime minFrameDuration;
 @property (nonatomic, strong) AVCaptureDevice *camera;
+@property (nonatomic, strong) AVCaptureDeviceFormat *format;
 
 @end
 
@@ -74,6 +77,8 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         self.videoWriter.recording = NO;
 
         dispatch_async(self.videoCaptureQueue, ^{
+            [self.audioOutput setSampleBufferDelegate:nil queue:NULL];
+            [self.videoOutput setSampleBufferDelegate:nil queue:NULL];
             NSLog(@"going to finish writing");
             [self.videoWriter.writer finishWritingWithCompletionHandler:^{
                 NSLog(@"done ... %d frames, %d dropped.  indices: %@", self.videoWriter.frameCount, [self.videoWriter.droppedFrameIndices count], self.videoWriter.droppedFrameIndices);
@@ -85,7 +90,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     AVCaptureSession *session = [[AVCaptureSession alloc] init];
     
     NSArray *audioDevices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
-    NSLog(@"audo devices: %lu  %@", (unsigned long)[audioDevices count], audioDevices);
+    NSLog(@"audio devices: %lu  %@", (unsigned long)[audioDevices count], audioDevices);
     if ([audioDevices count] > 0)
     {
         AVCaptureDevice *audioDevice = audioDevices[0];
@@ -109,7 +114,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         }
     }
     if (!camera) return;
-    [camera lockForConfiguration:nil];
+    if (![camera lockForConfiguration:nil]) return;
     if ([camera isFocusModeSupported:AVCaptureFocusModeAutoFocus]) camera.focusMode = AVCaptureFocusModeAutoFocus;
     if ([camera isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]) camera.exposureMode = AVCaptureExposureModeContinuousAutoExposure;
     if ([camera isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance]) camera.whiteBalanceMode = AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance;
@@ -120,8 +125,17 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     if (!cameraInput || ![session canAddInput:cameraInput]) return;
     [session addInput:cameraInput];
     self.camera = camera;
-    // TODO set the FPS
 
+    if (![camera lockForConfiguration:nil]) return;
+    camera.activeFormat = self.format;
+    camera.activeVideoMaxFrameDuration = self.minFrameDuration;
+    camera.activeVideoMinFrameDuration = self.minFrameDuration;
+    for (AVFrameRateRange *range in camera.activeFormat.videoSupportedFrameRateRanges)
+    {
+        NSLog(@"%f  %f", range.maxFrameRate, range.minFrameRate);
+    }
+    [camera unlockForConfiguration];
+    
     AVCaptureVideoPreviewLayer *previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
 //    previewLayer.frame = CGRectMake(0, 0, 200, 200);
@@ -182,6 +196,8 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     self.videoWriter = videoWriter;
     self.videoCaptureQueue = videoCaptureQueue;
     self.audioCaptureQueue = audioCaptureQueue;
+    self.videoOutput = videoOutput;
+    self.audioOutput = audioOutput;
 }
 
 - (void)cleanUpResources
@@ -222,6 +238,12 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         for (AVFrameRateRange *range in format.videoSupportedFrameRateRanges)
         {
             NSLog(@"min: %f    max: %f", range.minFrameRate, range.maxFrameRate);
+            if (range.maxFrameRate >= 240.0 && dims.width == 1280)
+            {
+                self.minFrameDuration = range.minFrameDuration;
+                NSLog(@"max: %f  %d", range.maxFrameRate, dims.height);
+                self.format = format;
+            }
         }
         NSLog(@"");
     }

@@ -70,6 +70,7 @@
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
+    NSLog(@"recording: %d", self.recording);
     if (!self.recording) return;
     
     CFRetain(sampleBuffer);
@@ -90,6 +91,7 @@
             }
         }
         // else -- ???
+        self.frameCount++;
     }
     else if (connection == self.audioConnection)
     {
@@ -107,7 +109,6 @@
         // ?? shouldn't have happened
     }
     CFRelease(sampleBuffer);
-    self.frameCount++;
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
