@@ -81,7 +81,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
             [self.videoOutput setSampleBufferDelegate:nil queue:NULL];
             NSLog(@"going to finish writing");
             [self.videoWriter.writer finishWritingWithCompletionHandler:^{
-                NSLog(@"done ... %d frames, %d dropped.  indices: %@", self.videoWriter.frameCount, [self.videoWriter.droppedFrameIndices count], self.videoWriter.droppedFrameIndices);
+                NSLog(@"done ... %ld frames, %lu dropped.  indices: %@", (long)self.videoWriter.frameCount, (unsigned long)[self.videoWriter.droppedFrameIndices count], self.videoWriter.droppedFrameIndices);
             }];
         });
         return;
