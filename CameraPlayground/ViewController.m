@@ -278,4 +278,15 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         return AVCaptureVideoOrientationPortrait;
     }
 }
+
+- (BOOL)shouldAutorotate
+{
+    return !self.videoWriter.recording;
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskAll;
+}
+
 @end
