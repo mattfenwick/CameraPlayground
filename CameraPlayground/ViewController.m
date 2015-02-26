@@ -156,6 +156,9 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         return;
     }
     [session addOutput:videoOutput];
+    AVCaptureConnection *videoConnection = [videoOutput connectionWithMediaType:AVMediaTypeVideo];
+    videoConnection.videoOrientation = [self getVideoOrientation];
+    previewLayer.connection.videoOrientation = [self getVideoOrientation];
 
     AVCaptureAudioDataOutput *audioOutput = [[AVCaptureAudioDataOutput alloc] init];
     if (![session canAddOutput:audioOutput])
@@ -250,4 +253,29 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     NSLog(@"done checking out camera settings");
 }
 
+- (AVCaptureVideoOrientation)getVideoOrientation
+{
+    UIInterfaceOrientation toInterfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    if (toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft)
+    {
+        return AVCaptureVideoOrientationLandscapeLeft;
+    }
+    else if (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight)
+    {
+        return AVCaptureVideoOrientationLandscapeRight;
+    }
+    else if (toInterfaceOrientation == UIInterfaceOrientationPortrait)
+    {
+        return AVCaptureVideoOrientationPortrait;
+    }
+    else if (toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown)
+    {
+        return AVCaptureVideoOrientationPortraitUpsideDown;
+    }
+    else
+    {
+        NSLog(@"ooh, something weird happened");
+        return AVCaptureVideoOrientationPortrait;
+    }
+}
 @end
