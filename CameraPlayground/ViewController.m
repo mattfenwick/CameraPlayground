@@ -77,8 +77,8 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         self.videoWriter.recording = NO;
 
         dispatch_async(self.videoCaptureQueue, ^{
-            [self.audioOutput setSampleBufferDelegate:nil queue:NULL];
-            [self.videoOutput setSampleBufferDelegate:nil queue:NULL];
+//            [self.audioOutput setSampleBufferDelegate:nil queue:NULL];
+//            [self.videoOutput setSampleBufferDelegate:nil queue:NULL];
             NSLog(@"going to finish writing");
             [self.videoWriter.writer finishWritingWithCompletionHandler:^{
                 NSLog(@"done ... %ld frames, %lu dropped.  indices: %@", (long)self.videoWriter.frameCount, (unsigned long)[self.videoWriter.droppedFrameIndices count], self.videoWriter.droppedFrameIndices);
