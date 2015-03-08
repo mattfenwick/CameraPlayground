@@ -158,7 +158,6 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     }];
     [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
     [sheet showFromRect:self.exposure.bounds inView:self.exposure animated:YES viewController:self];
-    NSLog(@"stop");
 }
 
 - (void)setExposureMode:(AVCaptureExposureMode)mode
@@ -172,6 +171,33 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         }
         [camera unlockForConfiguration];
     }
+}
+
+#pragma mark - format
+
+- (IBAction)formatTapped:(id)sender
+{
+    AVCaptureDevice *camera = self.cameraController.camera;
+    MWFActionSheet *sheet = [[MWFActionSheet alloc] initWithTitle:@"Select format" message:nil];
+    for (AVCaptureDeviceFormat *format in [camera formats])
+    {
+        CMVideoDimensions dims = CMVideoFormatDescriptionGetDimensions([format formatDescription]);
+        AVFrameRateRange *range = format.videoSupportedFrameRateRanges[0];
+        NSString *title = [NSString stringWithFormat:@"%d x %d @ %.2f FPS", dims.width, dims.height, range.maxFrameRate];
+        [sheet addButtonWithTitle:title style:MWFActionSheetActionStyleDefault handler:^() {
+            [self.cameraController setActiveFormat:format];
+        }];
+    }
+    [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
+    [sheet showFromRect:self.format.bounds inView:self.format animated:YES viewController:self];
+}
+
+#pragma mark - front/back camera
+
+- (IBAction)cameraTapped:(id)sender
+{
+    AVCaptureDevicePosition position = [self.cameraController.camera position] == AVCaptureDevicePositionBack ? AVCaptureDevicePositionFront : AVCaptureDevicePositionBack;
+    [self.cameraController setCameraWithPosition:position];
 }
 
 #pragma mark - orientation
