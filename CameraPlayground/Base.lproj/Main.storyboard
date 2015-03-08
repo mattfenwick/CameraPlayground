@@ -88,12 +88,16 @@
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YwQ-2S-mIn">
                                 <rect key="frame" x="15" y="255" width="100" height="30"/>
+                                <color key="backgroundColor" red="0.76807670295312458" green="1" blue="0.3533748468397877" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="100" id="yxE-me-wL7"/>
                                 </constraints>
                                 <state key="normal" title="FPS-mult">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="fpsMultiplierTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="let-i9-r8w"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gdC-11-HO5">
                                 <rect key="frame" x="15" y="300" width="100" height="30"/>
@@ -197,6 +201,7 @@
                         <outlet property="exposureButton" destination="1Dy-xu-RgF" id="7LV-T6-yXA"/>
                         <outlet property="focusButton" destination="mEp-mY-fhh" id="qIp-02-Udn"/>
                         <outlet property="formatButton" destination="3Fe-gu-Ceo" id="Oyn-gk-JLL"/>
+                        <outlet property="fpsMultiplierButton" destination="YwQ-2S-mIn" id="VFk-oO-e7V"/>
                         <outlet property="previewView" destination="jfu-KM-YRZ" id="SS1-xb-qYd"/>
                         <outlet property="recordButton" destination="ex3-NR-RUJ" id="1e9-d5-VZL"/>
                     </connections>

@@ -18,6 +18,7 @@
 @property (nonatomic, strong) IBOutlet UIButton *exposureButton;
 @property (nonatomic, strong) IBOutlet UIButton *formatButton;
 @property (nonatomic, strong) IBOutlet UIButton *cameraButton;
+@property (nonatomic, strong) IBOutlet UIButton *fpsMultiplierButton;
 
 @property (nonatomic, strong) IBOutlet UIView *previewView;
 @property (nonatomic, strong) CameraController *cameraController;
@@ -198,6 +199,42 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 {
     AVCaptureDevicePosition position = [self.cameraController.camera position] == AVCaptureDevicePositionBack ? AVCaptureDevicePositionFront : AVCaptureDevicePositionBack;
     [self.cameraController setCameraWithPosition:position];
+}
+
+#pragma mark - FPS multiplier
+
+- (IBAction)fpsMultiplierTapped:(id)sender
+{
+    MWFActionSheet *sheet = [[MWFActionSheet alloc] initWithTitle:@"Double or halve framerate" message:nil];
+    [sheet addButtonWithTitle:@"Double" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setFPSMultiplier:YES];
+    }];
+    [sheet addButtonWithTitle:@"Halve" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setFPSMultiplier:NO];
+    }];
+    [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
+    [sheet showFromRect:self.fpsMultiplierButton.bounds inView:self.fpsMultiplierButton animated:YES viewController:self];
+}
+
+- (void)setFPSMultiplier:(BOOL)doubleFPS
+{
+    AVCaptureDevice *camera = self.cameraController.camera;
+    if ([camera lockForConfiguration:nil])
+    {
+        CMTime oldFrameDuration = camera.activeVideoMinFrameDuration;
+        CMTime newFrameDuration;
+        if (doubleFPS)
+        {
+            newFrameDuration = CMTimeMake(oldFrameDuration.value, oldFrameDuration.timescale * 2);
+        }
+        else
+        {
+            newFrameDuration = CMTimeMake(oldFrameDuration.value * 2, oldFrameDuration.timescale);
+        }
+        camera.activeVideoMaxFrameDuration = newFrameDuration;
+        camera.activeVideoMinFrameDuration = newFrameDuration;
+        [camera unlockForConfiguration];
+    }
 }
 
 #pragma mark - orientation
