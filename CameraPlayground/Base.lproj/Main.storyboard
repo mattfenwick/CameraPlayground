@@ -21,18 +21,8 @@
                                 <rect key="frame" x="16" y="20" width="568" height="580"/>
                                 <color key="backgroundColor" red="0.022629760990000001" green="0.99312852799999995" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mEp-mY-fhh">
-                                <rect key="frame" x="237" y="285" width="125" height="30"/>
-                                <color key="backgroundColor" red="1" green="0.1030992533" blue="0.94801954239999997" alpha="1" colorSpace="calibratedRGB"/>
-                                <state key="normal" title="Focus/Exposure">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="focusExposureTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="FC1-iu-h4A"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ex3-NR-RUJ">
-                                <rect key="frame" x="250" y="40" width="100" height="30"/>
+                                <rect key="frame" x="31" y="40" width="100" height="30"/>
                                 <color key="backgroundColor" red="1" green="0.56918651409999999" blue="0.2500234361" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="100" id="uRE-tJ-wtD"/>
@@ -44,19 +34,85 @@
                                     <action selector="recordTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Mhp-1A-UVB"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mEp-mY-fhh">
+                                <rect key="frame" x="15" y="85" width="100" height="30"/>
+                                <color key="backgroundColor" red="1" green="0.1030992533" blue="0.94801954239999997" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="8YR-YH-wRl"/>
+                                </constraints>
+                                <state key="normal" title="Focus">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="focusTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Kgx-hQ-j7w"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Dy-xu-RgF">
+                                <rect key="frame" x="15" y="130" width="100" height="30"/>
+                                <color key="backgroundColor" red="0.95959267949643701" green="1" blue="0.20768677289312465" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="aIb-P0-r6I"/>
+                                </constraints>
+                                <state key="normal" title="Exposure">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="exposureTapped" destination="BYZ-38-t0r" eventType="touchUpInside" id="Sy8-Pt-Ifs"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Fe-gu-Ceo">
+                                <rect key="frame" x="15" y="165" width="100" height="30"/>
+                                <color key="backgroundColor" red="1" green="0.051262071680789445" blue="0.10677853636565182" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="443-3f-tMP"/>
+                                </constraints>
+                                <state key="normal" title="Format">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rhk-9P-atB">
+                                <rect key="frame" x="15" y="210" width="100" height="30"/>
+                                <color key="backgroundColor" red="0.15199006375137947" green="1" blue="0.2216891254507678" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="ZGs-se-jQv"/>
+                                </constraints>
+                                <state key="normal" title="Camera">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="rhk-9P-atB" firstAttribute="top" secondItem="3Fe-gu-Ceo" secondAttribute="bottom" constant="15" id="1R4-Zd-15W"/>
                             <constraint firstItem="ex3-NR-RUJ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="20" id="25S-fn-wUS"/>
                             <constraint firstItem="jfu-KM-YRZ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="3Zr-Pt-tGw"/>
+                            <constraint firstItem="rhk-9P-atB" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="15" id="GfN-Dl-IR5"/>
                             <constraint firstAttribute="trailingMargin" secondItem="jfu-KM-YRZ" secondAttribute="trailing" id="IcG-c4-y6U"/>
                             <constraint firstAttribute="centerX" secondItem="jfu-KM-YRZ" secondAttribute="centerX" id="Np9-XV-gBh"/>
+                            <constraint firstItem="3Fe-gu-Ceo" firstAttribute="top" secondItem="1Dy-xu-RgF" secondAttribute="bottom" constant="15" id="Pdo-ED-AqB"/>
                             <constraint firstItem="jfu-KM-YRZ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="WPp-lm-FKt"/>
+                            <constraint firstItem="mEp-mY-fhh" firstAttribute="top" secondItem="ex3-NR-RUJ" secondAttribute="bottom" constant="15" id="avw-6N-MNi"/>
+                            <constraint firstItem="3Fe-gu-Ceo" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="261" id="bnF-kf-N2m"/>
                             <constraint firstAttribute="centerX" secondItem="ex3-NR-RUJ" secondAttribute="centerX" id="dFS-9v-sGy"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="jfu-KM-YRZ" secondAttribute="bottom" id="dXJ-BK-MNa"/>
+                            <constraint firstItem="mEp-mY-fhh" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="15" id="k0X-Gm-e9l"/>
+                            <constraint firstItem="1Dy-xu-RgF" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="15" id="lVW-f8-YH6"/>
+                            <constraint firstItem="3Fe-gu-Ceo" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="15" id="mrv-Dd-3oW"/>
+                            <constraint firstItem="ex3-NR-RUJ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="15" id="rEU-vt-fF9"/>
+                            <constraint firstItem="1Dy-xu-RgF" firstAttribute="top" secondItem="mEp-mY-fhh" secondAttribute="bottom" constant="15" id="xNh-vG-94K"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="dFS-9v-sGy"/>
+                                <exclude reference="bnF-kf-N2m"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
+                        <outlet property="camera" destination="rhk-9P-atB" id="9yx-Eb-ntv"/>
+                        <outlet property="exposure" destination="1Dy-xu-RgF" id="ja5-2G-R0W"/>
+                        <outlet property="focus" destination="mEp-mY-fhh" id="LUR-Wj-ozN"/>
+                        <outlet property="format" destination="3Fe-gu-Ceo" id="de7-Gk-kpq"/>
                         <outlet property="previewView" destination="jfu-KM-YRZ" id="SS1-xb-qYd"/>
                         <outlet property="record" destination="ex3-NR-RUJ" id="90f-iy-LHg"/>
                     </connections>

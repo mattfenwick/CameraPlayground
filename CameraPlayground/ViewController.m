@@ -8,14 +8,21 @@
 @import AVFoundation;
 #import "ViewController.h"
 #import "CameraController.h"
+#import "MWFActionSheet.h"
 
 
 @interface ViewController () <CameraControllerDelegate>
 
 @property (nonatomic, strong) IBOutlet UIButton *record;
+@property (nonatomic, strong) IBOutlet UIButton *focus;
+@property (nonatomic, strong) IBOutlet UIButton *exposure;
+@property (nonatomic, strong) IBOutlet UIButton *format;
+@property (nonatomic, strong) IBOutlet UIButton *camera;
+
 @property (nonatomic, strong) IBOutlet UIView *previewView;
 @property (nonatomic, strong) CameraController *cameraController;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
+
 @property (nonatomic) NSInteger fileCount;
 
 @end
@@ -60,40 +67,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 
 }
 
-- (IBAction)focusExposureTapped:(id)sender
-{
-    NSError *error;
-    AVCaptureDevice *camera = self.cameraController.camera;
-    if ([camera lockForConfiguration:&error])
-    {
-        CGRect screen = [UIApplication sharedApplication].keyWindow.bounds;
-        NSLog(@"screen: %@", NSStringFromCGRect(screen));
-        CGPoint middle = CGPointMake(screen.size.width / 2.0, screen.size.height / 2.0);
-        [camera setFocusPointOfInterest:middle];
-        [camera setFocusMode:AVCaptureFocusModeAutoFocus];
-        [camera setExposurePointOfInterest:middle];
-        [camera setExposureMode:AVCaptureExposureModeAutoExpose];
-        [camera unlockForConfiguration];
-    }
-}
-
-- (NSURL *)getFileURL
-{
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    if ([paths count] == 0)
-    {
-        return nil;
-    }
-    NSString *documentsPath = [paths objectAtIndex:0];
-    NSString *filePath = [documentsPath stringByAppendingPathComponent:[NSString stringWithFormat:@"myvideo%ld.mov", (long)self.fileCount]];
-    self.fileCount++;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:filePath])
-    {
-        [fileManager removeItemAtPath:filePath error:nil];
-    }
-    return [NSURL fileURLWithPath:filePath];
-}
+#pragma mark - record
 
 - (IBAction)recordTapped:(id)sender
 {
@@ -116,10 +90,91 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+- (NSURL *)getFileURL
 {
-    NSLog(@"keyPath: %@  obj: %@  change: %@", keyPath, object, change);
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    if ([paths count] == 0)
+    {
+        return nil;
+    }
+    NSString *documentsPath = [paths objectAtIndex:0];
+    NSString *filePath = [documentsPath stringByAppendingPathComponent:[NSString stringWithFormat:@"myvideo%ld.mov", (long)self.fileCount]];
+    self.fileCount++;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:filePath])
+    {
+        [fileManager removeItemAtPath:filePath error:nil];
+    }
+    return [NSURL fileURLWithPath:filePath];
 }
+
+#pragma mark - focus
+
+- (IBAction)focusTapped:(id)sender
+{
+    MWFActionSheet *sheet = [[MWFActionSheet alloc] initWithTitle:@"Set focus mode" message:nil];
+    [sheet addButtonWithTitle:@"Locked" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setFocusMode:AVCaptureFocusModeLocked];
+    }];
+    [sheet addButtonWithTitle:@"Autofocus" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setFocusMode:AVCaptureFocusModeAutoFocus];
+    }];
+    [sheet addButtonWithTitle:@"Continuous autofocus" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+    }];
+    [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
+    // TODO frame, or bounds?
+    [sheet showFromRect:self.focus.bounds inView:self.focus animated:YES viewController:self];
+}
+
+// TODO this could be a cameraController method
+- (void)setFocusMode:(AVCaptureFocusMode)mode
+{
+    AVCaptureDevice *camera = self.cameraController.camera;
+    if ([camera lockForConfiguration:nil])
+    {
+        if ([camera isFocusModeSupported:mode])
+        {
+            camera.focusMode = mode;
+        }
+        [camera unlockForConfiguration];
+    }
+}
+
+
+#pragma mark - exposure
+
+- (IBAction)exposureTapped
+{
+    MWFActionSheet *sheet = [[MWFActionSheet alloc] initWithTitle:@"Set exposure mode" message:nil];
+    [sheet addButtonWithTitle:@"Locked" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setExposureMode:AVCaptureExposureModeLocked];
+    }];
+    [sheet addButtonWithTitle:@"Autoexpose" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setExposureMode:AVCaptureExposureModeAutoExpose];
+    }];
+    [sheet addButtonWithTitle:@"Continuous autoexpose" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+    }];
+    [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
+    [sheet showFromRect:self.exposure.bounds inView:self.exposure animated:YES viewController:self];
+    NSLog(@"stop");
+}
+
+- (void)setExposureMode:(AVCaptureExposureMode)mode
+{
+    AVCaptureDevice *camera = self.cameraController.camera;
+    if ([camera lockForConfiguration:nil])
+    {
+        if ([camera isExposureModeSupported:mode])
+        {
+            camera.exposureMode = mode;
+        }
+        [camera unlockForConfiguration];
+    }
+}
+
+#pragma mark - orientation
 
 - (AVCaptureVideoOrientation)getVideoOrientation
 {

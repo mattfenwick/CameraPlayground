@@ -15,6 +15,7 @@
 		996737D21A85601C00190298 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 996737D01A85601C00190298 /* LaunchScreen.xib */; };
 		996737DE1A85601C00190298 /* CameraPlaygroundTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 996737DD1A85601C00190298 /* CameraPlaygroundTests.m */; };
 		998943181AAC9AC500262817 /* CameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = 998943171AAC9AC500262817 /* CameraController.m */; };
+		9989431C1AACA87B00262817 /* MWFActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 9989431B1AACA87B00262817 /* MWFActionSheet.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,8 @@
 		996737DD1A85601C00190298 /* CameraPlaygroundTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraPlaygroundTests.m; sourceTree = "<group>"; };
 		998943161AAC9AC500262817 /* CameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraController.h; sourceTree = "<group>"; };
 		998943171AAC9AC500262817 /* CameraController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraController.m; sourceTree = "<group>"; };
+		9989431A1AACA87B00262817 /* MWFActionSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MWFActionSheet.h; sourceTree = "<group>"; };
+		9989431B1AACA87B00262817 /* MWFActionSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MWFActionSheet.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +97,8 @@
 				996737C11A85601C00190298 /* Supporting Files */,
 				998943161AAC9AC500262817 /* CameraController.h */,
 				998943171AAC9AC500262817 /* CameraController.m */,
+				9989431A1AACA87B00262817 /* MWFActionSheet.h */,
+				9989431B1AACA87B00262817 /* MWFActionSheet.m */,
 			);
 			path = CameraPlayground;
 			sourceTree = "<group>";
@@ -228,6 +233,7 @@
 				996737CA1A85601C00190298 /* ViewController.m in Sources */,
 				996737C71A85601C00190298 /* AppDelegate.m in Sources */,
 				996737C41A85601C00190298 /* main.m in Sources */,
+				9989431C1AACA87B00262817 /* MWFActionSheet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
