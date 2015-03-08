@@ -19,6 +19,7 @@
 @property (nonatomic, strong) IBOutlet UIButton *formatButton;
 @property (nonatomic, strong) IBOutlet UIButton *cameraButton;
 @property (nonatomic, strong) IBOutlet UIButton *fpsMultiplierButton;
+@property (nonatomic, strong) IBOutlet UIButton *whiteBalanceButton;
 
 @property (nonatomic, strong) IBOutlet UIView *previewView;
 @property (nonatomic, strong) CameraController *cameraController;
@@ -233,6 +234,38 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         }
         camera.activeVideoMaxFrameDuration = newFrameDuration;
         camera.activeVideoMinFrameDuration = newFrameDuration;
+        [camera unlockForConfiguration];
+    }
+}
+
+#pragma mark - white balance
+
+- (IBAction)whiteBalanceTapped:(id)sender
+{
+    MWFActionSheet *sheet = [[MWFActionSheet alloc] initWithTitle:@"Set white balance mode" message:nil];
+    [sheet addButtonWithTitle:@"Locked" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setWhiteBalanceMode:AVCaptureWhiteBalanceModeLocked];
+    }];
+    [sheet addButtonWithTitle:@"Autobalance" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setWhiteBalanceMode:AVCaptureWhiteBalanceModeAutoWhiteBalance];
+    }];
+    [sheet addButtonWithTitle:@"Continuous autobalance" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
+    }];
+    [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
+    [sheet showFromRect:self.whiteBalanceButton.bounds inView:self.whiteBalanceButton animated:YES viewController:self];
+    NSLog(@"white balance");
+}
+
+- (void)setWhiteBalanceMode:(AVCaptureWhiteBalanceMode)mode
+{
+    AVCaptureDevice *camera = self.cameraController.camera;
+    if ([camera lockForConfiguration:nil])
+    {
+        if ([camera isWhiteBalanceModeSupported:mode])
+        {
+            camera.whiteBalanceMode = mode;
+        }
         [camera unlockForConfiguration];
     }
 }
