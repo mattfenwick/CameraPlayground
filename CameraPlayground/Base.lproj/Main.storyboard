@@ -115,12 +115,12 @@
                         </variation>
                     </view>
                     <connections>
-                        <outlet property="camera" destination="rhk-9P-atB" id="9yx-Eb-ntv"/>
-                        <outlet property="exposure" destination="1Dy-xu-RgF" id="ja5-2G-R0W"/>
-                        <outlet property="focus" destination="mEp-mY-fhh" id="LUR-Wj-ozN"/>
-                        <outlet property="format" destination="3Fe-gu-Ceo" id="de7-Gk-kpq"/>
+                        <outlet property="cameraButton" destination="rhk-9P-atB" id="6fK-8B-6q1"/>
+                        <outlet property="exposureButton" destination="1Dy-xu-RgF" id="7LV-T6-yXA"/>
+                        <outlet property="focusButton" destination="mEp-mY-fhh" id="qIp-02-Udn"/>
+                        <outlet property="formatButton" destination="3Fe-gu-Ceo" id="Oyn-gk-JLL"/>
                         <outlet property="previewView" destination="jfu-KM-YRZ" id="SS1-xb-qYd"/>
-                        <outlet property="record" destination="ex3-NR-RUJ" id="90f-iy-LHg"/>
+                        <outlet property="recordButton" destination="ex3-NR-RUJ" id="1e9-d5-VZL"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

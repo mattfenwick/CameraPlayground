@@ -13,11 +13,11 @@
 
 @interface ViewController () <CameraControllerDelegate>
 
-@property (nonatomic, strong) IBOutlet UIButton *record;
-@property (nonatomic, strong) IBOutlet UIButton *focus;
-@property (nonatomic, strong) IBOutlet UIButton *exposure;
-@property (nonatomic, strong) IBOutlet UIButton *format;
-@property (nonatomic, strong) IBOutlet UIButton *camera;
+@property (nonatomic, strong) IBOutlet UIButton *recordButton;
+@property (nonatomic, strong) IBOutlet UIButton *focusButton;
+@property (nonatomic, strong) IBOutlet UIButton *exposureButton;
+@property (nonatomic, strong) IBOutlet UIButton *formatButton;
+@property (nonatomic, strong) IBOutlet UIButton *cameraButton;
 
 @property (nonatomic, strong) IBOutlet UIView *previewView;
 @property (nonatomic, strong) CameraController *cameraController;
@@ -124,7 +124,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     }];
     [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
     // TODO frame, or bounds?
-    [sheet showFromRect:self.focus.bounds inView:self.focus animated:YES viewController:self];
+    [sheet showFromRect:self.focusButton.bounds inView:self.focusButton animated:YES viewController:self];
 }
 
 // TODO this could be a cameraController method
@@ -157,7 +157,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         [self setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
     }];
     [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
-    [sheet showFromRect:self.exposure.bounds inView:self.exposure animated:YES viewController:self];
+    [sheet showFromRect:self.exposureButton.bounds inView:self.exposureButton animated:YES viewController:self];
 }
 
 - (void)setExposureMode:(AVCaptureExposureMode)mode
@@ -189,7 +189,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         }];
     }
     [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
-    [sheet showFromRect:self.format.bounds inView:self.format animated:YES viewController:self];
+    [sheet showFromRect:self.formatButton.bounds inView:self.formatButton animated:YES viewController:self];
 }
 
 #pragma mark - front/back camera
