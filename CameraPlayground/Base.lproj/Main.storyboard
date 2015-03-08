@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
@@ -19,14 +19,6 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jfu-KM-YRZ">
                                 <rect key="frame" x="16" y="20" width="568" height="580"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FJt-ej-ORf">
-                                        <rect key="frame" x="477" y="254" width="46" height="30"/>
-                                        <state key="normal" title="Button">
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                    </button>
-                                </subviews>
                                 <color key="backgroundColor" red="0.022629760990000001" green="0.99312852799999995" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mEp-mY-fhh">
@@ -39,14 +31,6 @@
                                     <action selector="focusExposureTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="FC1-iu-h4A"/>
                                 </connections>
                             </button>
-                            <pickerView contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="I4T-rn-VuU" userLabel="Cameras">
-                                <rect key="frame" x="409" y="40" width="150" height="162"/>
-                                <color key="backgroundColor" red="1" green="0.0" blue="0.28504548280000003" alpha="1" colorSpace="calibratedRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="150" id="7DR-p0-ztO"/>
-                                    <constraint firstAttribute="height" constant="50" id="8nu-hk-1ee"/>
-                                </constraints>
-                            </pickerView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ex3-NR-RUJ">
                                 <rect key="frame" x="250" y="40" width="100" height="30"/>
                                 <color key="backgroundColor" red="1" green="0.56918651409999999" blue="0.2500234361" alpha="1" colorSpace="calibratedRGB"/>
@@ -65,8 +49,6 @@
                         <constraints>
                             <constraint firstItem="ex3-NR-RUJ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="20" id="25S-fn-wUS"/>
                             <constraint firstItem="jfu-KM-YRZ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="3Zr-Pt-tGw"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="I4T-rn-VuU" secondAttribute="trailing" constant="25" id="5dE-U6-vVe"/>
-                            <constraint firstItem="I4T-rn-VuU" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="25" id="9Ks-J9-Zxn"/>
                             <constraint firstAttribute="trailingMargin" secondItem="jfu-KM-YRZ" secondAttribute="trailing" id="IcG-c4-y6U"/>
                             <constraint firstAttribute="centerX" secondItem="jfu-KM-YRZ" secondAttribute="centerX" id="Np9-XV-gBh"/>
                             <constraint firstItem="jfu-KM-YRZ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="WPp-lm-FKt"/>
@@ -75,7 +57,6 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="camerasPicker" destination="I4T-rn-VuU" id="VLM-EO-QFS"/>
                         <outlet property="previewView" destination="jfu-KM-YRZ" id="SS1-xb-qYd"/>
                         <outlet property="record" destination="ex3-NR-RUJ" id="90f-iy-LHg"/>
                     </connections>

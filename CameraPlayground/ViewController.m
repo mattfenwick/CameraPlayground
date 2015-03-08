@@ -14,7 +14,6 @@
 
 @property (nonatomic, strong) IBOutlet UIButton *record;
 @property (nonatomic, strong) IBOutlet UIView *previewView;
-@property (nonatomic, strong) IBOutlet UIPickerView *camerasPicker;
 @property (nonatomic, strong) VideoWriter *videoWriter;
 @property (nonatomic, strong) dispatch_queue_t videoCaptureQueue;
 @property (nonatomic, strong) dispatch_queue_t audioCaptureQueue;
