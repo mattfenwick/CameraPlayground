@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9934105D1A8A7B2F00DF4409 /* VideoWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 9934105C1A8A7B2F00DF4409 /* VideoWriter.m */; };
 		996737C41A85601C00190298 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 996737C31A85601C00190298 /* main.m */; };
 		996737C71A85601C00190298 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 996737C61A85601C00190298 /* AppDelegate.m */; };
 		996737CA1A85601C00190298 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 996737C91A85601C00190298 /* ViewController.m */; };
@@ -15,6 +14,7 @@
 		996737CF1A85601C00190298 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 996737CE1A85601C00190298 /* Images.xcassets */; };
 		996737D21A85601C00190298 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 996737D01A85601C00190298 /* LaunchScreen.xib */; };
 		996737DE1A85601C00190298 /* CameraPlaygroundTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 996737DD1A85601C00190298 /* CameraPlaygroundTests.m */; };
+		998943181AAC9AC500262817 /* CameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = 998943171AAC9AC500262817 /* CameraController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,8 +28,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		9934105B1A8A7B2F00DF4409 /* VideoWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoWriter.h; sourceTree = "<group>"; };
-		9934105C1A8A7B2F00DF4409 /* VideoWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoWriter.m; sourceTree = "<group>"; };
 		996737BE1A85601C00190298 /* CameraPlayground.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraPlayground.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		996737C21A85601C00190298 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		996737C31A85601C00190298 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -43,6 +41,8 @@
 		996737D71A85601C00190298 /* CameraPlaygroundTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CameraPlaygroundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		996737DC1A85601C00190298 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		996737DD1A85601C00190298 /* CameraPlaygroundTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraPlaygroundTests.m; sourceTree = "<group>"; };
+		998943161AAC9AC500262817 /* CameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraController.h; sourceTree = "<group>"; };
+		998943171AAC9AC500262817 /* CameraController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,8 +92,8 @@
 				996737CE1A85601C00190298 /* Images.xcassets */,
 				996737D01A85601C00190298 /* LaunchScreen.xib */,
 				996737C11A85601C00190298 /* Supporting Files */,
-				9934105B1A8A7B2F00DF4409 /* VideoWriter.h */,
-				9934105C1A8A7B2F00DF4409 /* VideoWriter.m */,
+				998943161AAC9AC500262817 /* CameraController.h */,
+				998943171AAC9AC500262817 /* CameraController.m */,
 			);
 			path = CameraPlayground;
 			sourceTree = "<group>";
@@ -224,7 +224,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9934105D1A8A7B2F00DF4409 /* VideoWriter.m in Sources */,
+				998943181AAC9AC500262817 /* CameraController.m in Sources */,
 				996737CA1A85601C00190298 /* ViewController.m in Sources */,
 				996737C71A85601C00190298 /* AppDelegate.m in Sources */,
 				996737C41A85601C00190298 /* main.m in Sources */,
