@@ -7,7 +7,6 @@
 //
 @import AVFoundation;
 #import "ViewController.h"
-#import "CameraPicker.h"
 #import "VideoWriter.h"
 
 
@@ -16,7 +15,6 @@
 @property (nonatomic, strong) IBOutlet UIButton *record;
 @property (nonatomic, strong) IBOutlet UIView *previewView;
 @property (nonatomic, strong) IBOutlet UIPickerView *camerasPicker;
-@property (nonatomic, strong) CameraPicker *camerasController;
 @property (nonatomic, strong) VideoWriter *videoWriter;
 @property (nonatomic, strong) dispatch_queue_t videoCaptureQueue;
 @property (nonatomic, strong) dispatch_queue_t audioCaptureQueue;
@@ -36,13 +34,6 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
-    self.camerasController = [[CameraPicker alloc] init];
-    self.camerasController.selectionDidChange = ^(NSInteger row) {
-        NSLog(@"hopefully, eventually, this sets the camera");
-    };
-    self.camerasPicker.delegate = self.camerasController;
-    self.camerasPicker.dataSource = self.camerasController;
     [self inspectDevices];
 }
 
