@@ -21,6 +21,9 @@
 @property (nonatomic, strong) IBOutlet UIButton *fpsMultiplierButton;
 @property (nonatomic, strong) IBOutlet UIButton *whiteBalanceButton;
 
+@property (nonatomic, strong) IBOutlet UISlider *zoomSlider;
+@property (nonatomic, strong) IBOutlet UISlider *exposureSlider;
+
 @property (nonatomic, strong) IBOutlet UIView *previewView;
 @property (nonatomic, strong) CameraController *cameraController;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
@@ -267,6 +270,39 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
             camera.whiteBalanceMode = mode;
         }
         [camera unlockForConfiguration];
+    }
+}
+
+#pragma mark - zoom
+
+- (IBAction)zoomSliderDidChange
+{
+    AVCaptureDevice *camera = self.cameraController.camera;
+    CGFloat maxZoom = camera.activeFormat.videoMaxZoomFactor;
+    CGFloat newZoomFactor = (maxZoom - 1) * self.zoomSlider.value + 1;
+    if ([camera lockForConfiguration:nil])
+    {
+        camera.videoZoomFactor = newZoomFactor;
+        [camera unlockForConfiguration];
+    }
+}
+
+#pragma mark - exposure
+
+- (IBAction)exposureSliderDidChange
+{
+    //    DLog(@"%@", self.exposureSlider);
+    AVCaptureDevice *camera = self.cameraController.camera;
+    AVCaptureDeviceFormat *format = camera.activeFormat;
+    float diff = format.maxISO - format.minISO;
+    float iso = diff * self.exposureSlider.value + format.minISO;
+    if ([camera lockForConfiguration:nil])
+    {
+        //        DLog(@"exposure -- %d", _camera.exposureMode);
+        [camera setExposureModeCustomWithDuration:camera.exposureDuration ISO:iso completionHandler:^(CMTime syncTime) {
+            //            DLog(@"exposure -- %d", strongSelf->_camera.exposureMode);
+            [camera unlockForConfiguration];
+        }];
     }
 }
 

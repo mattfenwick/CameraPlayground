@@ -148,13 +148,33 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                             </button>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="J8k-xM-sZa" userLabel="Zoom">
+                                <rect key="frame" x="148" y="510" width="304" height="31"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="300" id="Zvr-to-6gg"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="zoomSliderDidChange" destination="BYZ-38-t0r" eventType="valueChanged" id="qOb-5c-VIg"/>
+                                </connections>
+                            </slider>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="LJx-RH-MD5" userLabel="Exposure">
+                                <rect key="frame" x="148" y="555" width="304" height="31"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="300" id="1ia-2M-PLE"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="exposureSliderDidChange" destination="BYZ-38-t0r" eventType="valueChanged" id="txb-4C-tOu"/>
+                                </connections>
+                            </slider>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="rhk-9P-atB" firstAttribute="top" secondItem="3Fe-gu-Ceo" secondAttribute="bottom" constant="15" id="1R4-Zd-15W"/>
                             <constraint firstItem="ex3-NR-RUJ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="20" id="25S-fn-wUS"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="LJx-RH-MD5" secondAttribute="bottom" constant="15" id="2tc-m1-N3k"/>
                             <constraint firstItem="jfu-KM-YRZ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="3Zr-Pt-tGw"/>
                             <constraint firstItem="tTp-37-Iri" firstAttribute="top" secondItem="7Xs-jK-luE" secondAttribute="bottom" constant="15" id="7dy-xP-QFh"/>
+                            <constraint firstItem="LJx-RH-MD5" firstAttribute="top" secondItem="J8k-xM-sZa" secondAttribute="bottom" constant="15" id="7sg-7B-7Aa"/>
                             <constraint firstItem="YwQ-2S-mIn" firstAttribute="top" secondItem="gdC-11-HO5" secondAttribute="bottom" constant="-30" id="8hj-iK-c2w"/>
                             <constraint firstItem="gdC-11-HO5" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="15" id="AcJ-X8-aeq"/>
                             <constraint firstItem="zDH-np-v3u" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="15" id="Dno-vE-quB"/>
@@ -168,6 +188,8 @@
                             <constraint firstItem="jfu-KM-YRZ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="WPp-lm-FKt"/>
                             <constraint firstItem="7Xs-jK-luE" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="15" id="XJ7-lR-SmR"/>
                             <constraint firstItem="tTp-37-Iri" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="15" id="ZnH-by-0vT"/>
+                            <constraint firstAttribute="centerX" secondItem="LJx-RH-MD5" secondAttribute="centerX" id="a2z-fJ-EJb"/>
+                            <constraint firstAttribute="centerX" secondItem="J8k-xM-sZa" secondAttribute="centerX" id="aSc-n8-IFb"/>
                             <constraint firstItem="mEp-mY-fhh" firstAttribute="top" secondItem="ex3-NR-RUJ" secondAttribute="bottom" constant="15" id="avw-6N-MNi"/>
                             <constraint firstItem="3Fe-gu-Ceo" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="261" id="bnF-kf-N2m"/>
                             <constraint firstAttribute="centerX" secondItem="ex3-NR-RUJ" secondAttribute="centerX" id="dFS-9v-sGy"/>
@@ -203,12 +225,14 @@
                     <connections>
                         <outlet property="cameraButton" destination="rhk-9P-atB" id="6fK-8B-6q1"/>
                         <outlet property="exposureButton" destination="1Dy-xu-RgF" id="7LV-T6-yXA"/>
+                        <outlet property="exposureSlider" destination="LJx-RH-MD5" id="zCR-Yk-60R"/>
                         <outlet property="focusButton" destination="mEp-mY-fhh" id="qIp-02-Udn"/>
                         <outlet property="formatButton" destination="3Fe-gu-Ceo" id="Oyn-gk-JLL"/>
                         <outlet property="fpsMultiplierButton" destination="YwQ-2S-mIn" id="VFk-oO-e7V"/>
                         <outlet property="previewView" destination="jfu-KM-YRZ" id="SS1-xb-qYd"/>
                         <outlet property="recordButton" destination="ex3-NR-RUJ" id="1e9-d5-VZL"/>
                         <outlet property="whiteBalanceButton" destination="tTp-37-Iri" id="QRn-uE-JiY"/>
+                        <outlet property="zoomSlider" destination="J8k-xM-sZa" id="ppd-t1-VUG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
