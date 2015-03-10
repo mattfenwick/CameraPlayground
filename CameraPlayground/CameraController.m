@@ -361,10 +361,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
         dispatch_async(self.videoWritingQueue, ^{
             [self.assetWriter finishWritingWithCompletionHandler:^{
                 [self endBackgroundTask];
-                if (self.delegate)
-                {
-                    [self.delegate finishedRecordingWithURL:self.assetWriter.outputURL status:self.assetWriter.status];
-                }
+                [self.delegate finishedRecordingWithURL:self.assetWriter.outputURL status:self.assetWriter.status];
             }];
         });
         DLog(@"number of dropped frames - %li, %@", (long)self.droppedFrameCount, self.droppedFrameIndices);
@@ -543,10 +540,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
     [self endBackgroundTask];
-    if (self.delegate)
-    {
-        [self.delegate finishedRecordingIPhone4WithURL:outputFileURL error:error];
-    }
+    [self.delegate finishedRecordingIPhone4WithURL:outputFileURL error:error];
 }
 
 #pragma mark - debug aids
@@ -601,18 +595,12 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
         BOOL isAdjusting = [change[NSKeyValueChangeNewKey] boolValue];
         if (isAdjusting && self.camera.focusMode != AVCaptureFocusModeLocked)
         {
-            if (self.delegate)
-            {
-                [self.delegate adjustingFocus];
-            }
+            [self.delegate adjustingFocus];
         }
     }
     else if (context == IsAdjustingExposureContext)
     {
-        if (self.delegate)
-        {
-            [self.delegate adjustingExposure];
-        }
+        [self.delegate adjustingExposure];
     }
     else
     {
