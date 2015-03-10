@@ -231,6 +231,10 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
             {
                 [self reportError:error];
             }
+            else
+            {
+                [self logState:camera];
+            }
         }];
     }
     [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
@@ -250,6 +254,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     else
     {
         [self logCameraCapabilities:self.cameraController.camera];
+        [self logState:self.cameraController.camera];
     }
 }
 
@@ -470,66 +475,57 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 
 - (void)logState:(AVCaptureDevice *)camera
 {
-    camera.activeFormat;
-    camera.activeVideoMaxFrameDuration;
-    camera.activeVideoMinFrameDuration;
-    camera.adjustingExposure;
-    camera.adjustingFocus;
-    camera.adjustingWhiteBalance;
-    camera.deviceWhiteBalanceGains;
-    camera.exposureDuration
-    camera.exposureMode
-    camera.exposurePointOfInterest
-    camera.exposurePointOfInterestSupported
-    camera.exposureTargetBias
-    camera.exposureTargetOffset
-    camera.flashActive
-    camera.flashAvailable
-    camera.flashMode
-    camera.focusMode
-    camera.focusPointOfInterest
-    camera.focusPointOfInterestSupported
-    camera.grayWorldDeviceWhiteBalanceGains
-    camera.hasFlash
-    camera.hasTorch
-    camera.isAdjustingExposure
-    camera.isAdjustingFocus
-    camera.isAdjustingWhiteBalance
-    camera.isAutoFocusRangeRestrictionSupported
+    NSLog(@"active camera:");
+    NSLog(@"  format: %@", [self formatString:camera.activeFormat]);
+    CMTime minDur = camera.activeVideoMinFrameDuration;
+    CMTime maxDur = camera.activeVideoMaxFrameDuration;
+    NSLog(@"  min, max frame duration: %lld / %d, %lld / %d", minDur.value, minDur.timescale, maxDur.value, maxDur.timescale);
+    NSLog(@"  adjusting exposure, focus, white balance: %d, %d, %d", camera.adjustingExposure, camera.adjustingFocus, camera.adjustingWhiteBalance);
+    NSLog(@"  white balance gains: %d", camera.deviceWhiteBalanceGains);
+    NSLog(@"  exposure: duration, mode, POI supported, POI, target bias, target offset: %lld / %ld, %d, %d, %@, %f, %f", camera.exposureDuration.value, camera.exposureMode, camera.exposureDuration.timescale, camera.exposurePointOfInterestSupported, NSStringFromCGPoint(camera.exposurePointOfInterest), camera.exposureTargetBias, camera.exposureTargetOffset);
+    NSLog(@"  flash: active, available, mode: %d, %d, %ld", camera.flashActive, camera.flashAvailable, camera.flashMode);
+    NSLog(@"  focus: mode, POI supported, POI: %ld, %d, %@", camera.focusMode, camera.focusPointOfInterestSupported, NSStringFromCGPoint(camera.focusPointOfInterest));
+    NSLog(@"  gray world device white balance gains: %d", camera.grayWorldDeviceWhiteBalanceGains);
+    NSLog(@"  has flash and torch: %d, %d", camera.hasFlash, camera.hasTorch);
+    NSLog(@"  is adjusting exposure, focus, white balance: %d, %d, %d", camera.isAdjustingExposure, camera.isAdjustingFocus, camera.isAdjustingWhiteBalance);
+    NSLog(@"  autofocus range restricted supported: %d", camera.isAutoFocusRangeRestrictionSupported);
+    NSLog(@"  flash active and available: %d, %d", camera.isFlashActive, camera.isFlashAvailable);
+    NSLog(@"  low light boost supported, enabled: %d, %d", camera.isLowLightBoostSupported, camera.isLowLightBoostEnabled);
+    NSLog(@"  ISO: %f", camera.ISO);
+    NSLog(@"  ramping video zoom: %d", camera.isRampingVideoZoom);
+    NSLog(@"  smooth autofocus supported and enabled: %d, %d", camera.isSmoothAutoFocusSupported, camera.isSmoothAutoFocusEnabled);
+    NSLog(@"  torch available, active: %d, %d", camera.isTorchAvailable, camera.isTorchActive);
+    NSLog(@"  video HDR enabled: %d", camera.isVideoHDREnabled);
+    NSLog(@"  lens aperture, position: %f, %f", camera.lensAperture, camera.lensPosition);
+    NSLog(@"  min, max exposure target bias: %f, %f", camera.minExposureTargetBias, camera.maxExposureTargetBias);
+    NSLog(@"  subject area change monitoring enabled: %d", camera.subjectAreaChangeMonitoringEnabled);
+    NSLog(@"  video zoom factor: %f", camera.videoZoomFactor);
+    NSLog(@"  white balance mode: %d", camera.whiteBalanceMode);
+/*
     camera.isConnected
     camera.isExposurePointOfInterestSupported
-    camera.isFlashActive
-    camera.isFlashAvailable
     camera.isFocusPointOfInterestSupported
-    camera.isLowLightBoostEnabled
-    camera.isLowLightBoostSupported
-    camera.ISO
-    camera.isRampingVideoZoom
-    camera.isSmoothAutoFocusEnabled
-    camera.isSmoothAutoFocusSupported
     camera.isSubjectAreaChangeMonitoringEnabled // TODO possibly important!
-    camera.isTorchActive
-    camera.isTorchAvailable
-    camera.isVideoHDREnabled
-    camera.lensAperture
-    camera.lensPosition
     camera.localizedName
     camera.lowLightBoostEnabled
     camera.lowLightBoostSupported
-    camera.maxExposureTargetBias
     camera.maxWhiteBalanceGain
-    camera.minExposureTargetBias
     camera.rampingVideoZoom
     camera.smoothAutoFocusEnabled
     camera.smoothAutoFocusSupported
-    camera.subjectAreaChangeMonitoringEnabled // TODO important!
     camera.torchActive
     camera.torchAvailable
     camera.torchLevel
     camera.torchMode
     camera.videoHDREnabled
-    camera.videoZoomFactor
-    camera.whiteBalanceMode
+ */
+}
+
+- (NSString *)formatString:(AVCaptureDeviceFormat *)format
+{
+    CMVideoDimensions dims = CMVideoFormatDescriptionGetDimensions([format formatDescription]);
+    AVFrameRateRange *range = format.videoSupportedFrameRateRanges[0];
+    return [NSString stringWithFormat:@"%d x %d @ %.2f FPS", dims.width, dims.height, range.maxFrameRate];
 }
 
 @end
