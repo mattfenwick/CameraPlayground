@@ -290,7 +290,12 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         }
         camera.activeVideoMaxFrameDuration = newFrameDuration;
         camera.activeVideoMinFrameDuration = newFrameDuration;
+/*        if (camera.exposureMode != AVCaptureExposureModeContinuousAutoExposure)
+        {
+            camera.exposureMode = AVCaptureExposureModeAutoExpose;
+        }*/
         [camera unlockForConfiguration];
+        [self logState:camera];
     }
 }
 
@@ -482,7 +487,8 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     NSLog(@"  min, max frame duration: %lld / %d, %lld / %d", minDur.value, minDur.timescale, maxDur.value, maxDur.timescale);
     NSLog(@"  adjusting exposure, focus, white balance: %d, %d, %d", camera.adjustingExposure, camera.adjustingFocus, camera.adjustingWhiteBalance);
     NSLog(@"  white balance gains: %d", camera.deviceWhiteBalanceGains);
-    NSLog(@"  exposure: duration, mode, POI supported, POI, target bias, target offset: %lld / %ld, %d, %d, %@, %f, %f", camera.exposureDuration.value, camera.exposureMode, camera.exposureDuration.timescale, camera.exposurePointOfInterestSupported, NSStringFromCGPoint(camera.exposurePointOfInterest), camera.exposureTargetBias, camera.exposureTargetOffset);
+    NSLog(@"  exposure mode: %ld", camera.exposureMode);
+    NSLog(@"  exposure: duration, POI supported, POI, target bias, target offset: %lld / %d, %d, %@, %f, %f", camera.exposureDuration.value, camera.exposureDuration.timescale, camera.exposurePointOfInterestSupported, NSStringFromCGPoint(camera.exposurePointOfInterest), camera.exposureTargetBias, camera.exposureTargetOffset);
     NSLog(@"  flash: active, available, mode: %d, %d, %ld", camera.flashActive, camera.flashAvailable, camera.flashMode);
     NSLog(@"  focus: mode, POI supported, POI: %ld, %d, %@", camera.focusMode, camera.focusPointOfInterestSupported, NSStringFromCGPoint(camera.focusPointOfInterest));
     NSLog(@"  gray world device white balance gains: %d", camera.grayWorldDeviceWhiteBalanceGains);
