@@ -247,6 +247,10 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     {
         [self reportError:error];
     }
+    else
+    {
+        [self logCameraCapabilities:self.cameraController.camera];
+    }
 }
 
 #pragma mark - FPS multiplier
@@ -409,5 +413,60 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 {
     NSLog(@"finished -- %@, %ld", fileURL, status);
 }
+
+#pragma mark - device capabilities
+
+- (void)logCameraCapabilities:(AVCaptureDevice *)camera
+{
+    NSLog(@"focus:");
+    NSLog(@"  locked: %d", [camera isFocusModeSupported:AVCaptureFocusModeLocked]);
+    NSLog(@"  autofocus: %d", [camera isFocusModeSupported:AVCaptureFocusModeAutoFocus]);
+    NSLog(@"  continuous autofocus: %d", [camera isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]);
+    NSLog(@"  focus point of interest: %d", [camera isFocusPointOfInterestSupported]);
+    NSLog(@"exposure:");
+    NSLog(@"  locked: %d", [camera isExposureModeSupported:AVCaptureExposureModeLocked]);
+    NSLog(@"  autoexpose: %d", [camera isExposureModeSupported:AVCaptureExposureModeAutoExpose]);
+    NSLog(@"  continuous autoexpose: %d", [camera isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure]);
+    NSLog(@"  custom: %d", [camera isExposureModeSupported:AVCaptureExposureModeCustom]);
+    NSLog(@"  exposure point of interest: %d", [camera isExposurePointOfInterestSupported]);
+    NSLog(@"format:");
+    for (AVCaptureDeviceFormat *format in [camera formats])
+    {
+        CMVideoDimensions dims = CMVideoFormatDescriptionGetDimensions([format formatDescription]);
+        AVFrameRateRange *range = format.videoSupportedFrameRateRanges[0];
+        NSString *title = [NSString stringWithFormat:@"%d x %d @ %.2f FPS", dims.width, dims.height, range.maxFrameRate];
+        NSLog(@"  %@, %.2f", title, format.videoMaxZoomFactor);
+    }
+    NSLog(@"zoom:");
+//    NSLog(@"  min zoom: %f", camera)
+    NSLog(@"white balance");
+    NSLog(@"  locked: %d", [camera isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked]);
+    NSLog(@"  auto whitebalance: %d", [camera isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeAutoWhiteBalance]);
+    NSLog(@"  continuous auto whitebalance: %d", [camera isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance]);
+    NSLog(@"torch:");
+    NSLog(@"  off: %d", [camera isTorchModeSupported:AVCaptureTorchModeOff]);
+    NSLog(@"  on: %d", [camera isTorchModeSupported:AVCaptureTorchModeOn]);
+/*    if ([camera isTorchModeSupported:AVCaptureTorchModeAuto])
+    {
+        if ([camera lockForConfiguration:nil])
+        {
+            camera.torchMode = AVCaptureTorchModeAuto;
+            [camera unlockForConfiguration];
+        }
+    }*/
+    NSLog(@"  auto: %d", [camera isTorchModeSupported:AVCaptureTorchModeAuto]);
+    NSLog(@"flash:");
+    NSLog(@"  off: %d", [camera isFlashModeSupported:AVCaptureFlashModeOff]);
+    NSLog(@"  on: %d", [camera isFlashModeSupported:AVCaptureFlashModeOn]);
+    NSLog(@"  auto: %d", [camera isFlashModeSupported:AVCaptureFlashModeAuto]);
+    NSLog(@"presets: ");
+    for (NSString *preset in @[AVCaptureSessionPreset1280x720, AVCaptureSessionPreset1920x1080, AVCaptureSessionPreset352x288, AVCaptureSessionPreset640x480, AVCaptureSessionPresetHigh, AVCaptureSessionPresetiFrame1280x720, AVCaptureSessionPresetiFrame960x540, AVCaptureSessionPresetInputPriority, AVCaptureSessionPresetLow, AVCaptureSessionPresetMedium, AVCaptureSessionPresetPhoto])
+    {
+        NSLog(@"  %@: %d", preset, [camera supportsAVCaptureSessionPreset:preset]);
+    }
+}
+
+#pragma mark - state
+
 
 @end
