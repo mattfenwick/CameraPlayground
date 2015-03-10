@@ -40,17 +40,49 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.cameraController = [[CameraController alloc] initWithUsingCustomPipeline:YES cameraPosition:AVCaptureDevicePositionBack];
-    [self.cameraController initializeAVCaptureSession];
+    self.cameraController = [[CameraController alloc] initWithUsingCustomPipeline:YES];
+    CameraControllerError deviceError = [self.cameraController initializeDevicesWithCameraPosition:AVCaptureDevicePositionBack];
+    if (deviceError != CameraControllerErrorNone)
+    {
+        [self reportError:deviceError];
+        return;
+    }
+    CameraControllerError avSessionError = [self.cameraController initializeAVCaptureSession];
+    if (avSessionError != CameraControllerErrorNone)
+    {
+        [self reportError:avSessionError];
+        return;
+    }
     self.cameraController.delegate = self;
     [self.cameraController setVideoAVCaptureOrientation:[self getVideoOrientation]];
     [self addVideoPreviewLayer];
     self.fileCount = 1;
 }
 
-- (void)didReceiveMemoryWarning {
+- (void)reportError:(CameraControllerError)error
+{
+    NSString *str;
+    if (error == CameraControllerErrorNone) str = @"none";
+    else if (error == CameraControllerErrorInvalidFormat) str = @"invalid format";
+    else if (error == CameraControllerErrorNoAudioDeviceFound) str = @"no audio device found";
+    else if (error == CameraControllerErrorNoVideoDeviceFound) str = @"no video device found";
+    else if (error == CameraControllerErrorUnableToAddAssetWriterAudioInput) str = @"unable to add asset writer audio input";
+    else if (error == CameraControllerErrorUnableToAddAssetWriterVideoInput) str = @"unable to add asset writer video input";
+    else if (error == CameraControllerErrorUnableToAddAudioInput) str = @"unable to add audio input";
+    else if (error == CameraControllerErrorUnableToAddAudioOutput) str = @"unable to add audio output";
+    else if (error == CameraControllerErrorUnableToAddFileOutput) str = @"unable to add file output";
+    else if (error == CameraControllerErrorUnableToAddVideoInput) str = @"unable to add video input";
+    else if (error == CameraControllerErrorUnableToAddVideoOutput) str = @"unable to add video output";
+    else if (error == CameraControllerErrorUnableToCreateAssetWriter) str = @"unable to create asset writer";
+    else if (error == CameraControllerErrorUnableToLockForConfig) str = @"unable to lock for config";
+    else if (error == CameraControllerErrorUnableToStartWriting) str = @"unable to start writing";
+    else str = @"unknown error";
+    NSLog(@"error -- %@", str);
+}
+
+- (void)didReceiveMemoryWarning
+{
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)addVideoPreviewLayer
@@ -69,7 +101,6 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     dispatch_async(dispatch_get_main_queue(), ^{
         [viewLayer insertSublayer:self.previewLayer below:[[viewLayer sublayers] objectAtIndex:0]];
     });
-
 }
 
 #pragma mark - record
@@ -91,7 +122,12 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
             return;
         }
         [self.cameraController setVideoAVCaptureOrientation:[self getVideoOrientation]];
-        [self.cameraController startRecordingWithFileURL:url];
+        CameraControllerError error = [self.cameraController startRecordingWithFileURL:url];
+        if (error != CameraControllerErrorNone)
+        {
+            [self reportError:error];
+            return;
+        }
     }
 }
 
@@ -190,7 +226,11 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
         AVFrameRateRange *range = format.videoSupportedFrameRateRanges[0];
         NSString *title = [NSString stringWithFormat:@"%d x %d @ %.2f FPS", dims.width, dims.height, range.maxFrameRate];
         [sheet addButtonWithTitle:title style:MWFActionSheetActionStyleDefault handler:^() {
-            [self.cameraController setActiveFormat:format];
+            CameraControllerError error = [self.cameraController setActiveFormat:format];
+            if (error != CameraControllerErrorNone)
+            {
+                [self reportError:error];
+            }
         }];
     }
     [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
@@ -202,7 +242,11 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 - (IBAction)cameraTapped:(id)sender
 {
     AVCaptureDevicePosition position = [self.cameraController.camera position] == AVCaptureDevicePositionBack ? AVCaptureDevicePositionFront : AVCaptureDevicePositionBack;
-    [self.cameraController setCameraWithPosition:position];
+    CameraControllerError error = [self.cameraController setCameraWithPosition:position];
+    if (error != CameraControllerErrorNone)
+    {
+        [self reportError:error];
+    }
 }
 
 #pragma mark - FPS multiplier

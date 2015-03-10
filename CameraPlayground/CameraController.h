@@ -3,6 +3,24 @@
 @import AVFoundation;
 
 
+typedef NS_ENUM(NSInteger, CameraControllerError)
+{
+    CameraControllerErrorNone,
+    CameraControllerErrorNoAudioDeviceFound,
+    CameraControllerErrorNoVideoDeviceFound,
+    CameraControllerErrorUnableToAddAudioInput,
+    CameraControllerErrorUnableToAddAudioOutput,
+    CameraControllerErrorUnableToAddVideoInput,
+    CameraControllerErrorUnableToAddVideoOutput,
+    CameraControllerErrorUnableToAddFileOutput,
+    CameraControllerErrorUnableToCreateAssetWriter,
+    CameraControllerErrorUnableToAddAssetWriterVideoInput,
+    CameraControllerErrorUnableToAddAssetWriterAudioInput,
+    CameraControllerErrorUnableToStartWriting,
+    CameraControllerErrorInvalidFormat,
+    CameraControllerErrorUnableToLockForConfig
+};
+
 @protocol CameraControllerDelegate <NSObject>
 
 - (void)finishedRecordingWithURL:(NSURL *)fileURL status:(AVAssetWriterStatus)status;
@@ -38,17 +56,19 @@
  also
  - camera observer for focus and exposure
  */
-- (instancetype)initWithUsingCustomPipeline:(BOOL)isUsingCustomPipeline cameraPosition:(AVCaptureDevicePosition)cameraPosition;
-- (BOOL)initializeAVCaptureSession;
-//- (BOOL)initializeAVAssetWriter:(NSURL *)fileURL;
-- (void)startRecordingWithFileURL:(NSURL *)fileURL;
+- (instancetype)initWithUsingCustomPipeline:(BOOL)isUsingCustomPipeline;
+
+- (CameraControllerError)initializeDevicesWithCameraPosition:(AVCaptureDevicePosition)cameraPosition;
+- (CameraControllerError)initializeAVCaptureSession;
+//- (CameraControllerError)initializeAVAssetWriter:(NSURL *)fileURL;
+- (CameraControllerError)startRecordingWithFileURL:(NSURL *)fileURL;
 - (void)stopRecording;
 - (void)pauseRecording;
 - (void)resumeRecording;
 - (void)cleanUp;
-- (void)setActiveFormat:(AVCaptureDeviceFormat *)format;
+- (CameraControllerError)setActiveFormat:(AVCaptureDeviceFormat *)format;
 - (void)setVideoAVCaptureOrientation:(AVCaptureVideoOrientation)orientation;
-- (BOOL)setCameraWithPosition:(AVCaptureDevicePosition)position;
+- (CameraControllerError)setCameraWithPosition:(AVCaptureDevicePosition)position;
 
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, weak) id<CameraControllerDelegate> delegate;

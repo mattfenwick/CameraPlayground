@@ -66,7 +66,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 
 @implementation CameraController
 
-- (instancetype)initWithUsingCustomPipeline:(BOOL)isUsingCustomPipeline cameraPosition:(AVCaptureDevicePosition)cameraPosition
+- (instancetype)initWithUsingCustomPipeline:(BOOL)isUsingCustomPipeline
 {
     self = [super init];
     if (self)
@@ -75,15 +75,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
         self.isUsingCustomPipeline = isUsingCustomPipeline;
         self.videoWritingQueue = dispatch_queue_create("Video Capture Queue", DISPATCH_QUEUE_SERIAL);
         self.audioWritingQueue = dispatch_queue_create("Audio Capture Queue", DISPATCH_QUEUE_SERIAL);
-
-        // TODO error handling
-        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
-        if (devices != nil && [devices count] > 0)
-        {
-            self.audioDevice = devices[0];
-        }
-        self.camera = [self getCamera:cameraPosition];
-        [self setUpKVO];
     }
     return self;
 }
@@ -108,30 +99,41 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     DLog(@"TODO -- clean up");
 }
 
-#pragma mark - Capture initialization
+#pragma mark - initialization
 
-- (BOOL)initializeAVCaptureSession
+- (CameraControllerError)initializeDevicesWithCameraPosition:(AVCaptureDevicePosition)cameraPosition
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
+    if (!devices || [devices count] == 0) return CameraControllerErrorNoAudioDeviceFound;
+    self.audioDevice = devices[0];
+    self.camera = [self getCamera:cameraPosition];
+    if (!self.camera) return CameraControllerErrorNoVideoDeviceFound;
+    [self setUpKVO];
+    return CameraControllerErrorNone;
+}
+
+- (CameraControllerError)initializeAVCaptureSession
 {
     self.session = [[AVCaptureSession alloc] init];
     
     self.audioInput = [[AVCaptureDeviceInput alloc] initWithDevice:self.audioDevice error:nil];
-    if (!self.audioInput || ![self.session canAddInput:self.audioInput]) return NO;
+    if (!self.audioInput || ![self.session canAddInput:self.audioInput]) return CameraControllerErrorUnableToAddAudioInput;
     [self.session addInput:self.audioInput];
     
     self.audioOutput = [[AVCaptureAudioDataOutput alloc] init];
-    if (!self.audioOutput || ![self.session canAddOutput:self.audioOutput]) return NO;
+    if (!self.audioOutput || ![self.session canAddOutput:self.audioOutput]) return CameraControllerErrorUnableToAddAudioOutput;
     [self.session addOutput:self.audioOutput];
     self.audioConnection = [self.audioOutput connectionWithMediaType:AVMediaTypeAudio];
     
     self.cameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:self.camera error:nil];
-    if (!self.cameraInput || ![self.session canAddInput:self.cameraInput]) return NO;
+    if (!self.cameraInput || ![self.session canAddInput:self.cameraInput]) return CameraControllerErrorUnableToAddVideoInput;
     [self.session addInput:self.cameraInput];
     
     if (self.isUsingCustomPipeline)
     {
         self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
         [self.videoOutput setAlwaysDiscardsLateVideoFrames:NO];
-        if (![self.session canAddOutput:self.videoOutput]) return NO;
+        if (![self.session canAddOutput:self.videoOutput]) return CameraControllerErrorUnableToAddVideoOutput;
         [self.session addOutput:self.videoOutput];
         
         self.videoConnection = [self.videoOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -144,7 +146,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     else
     {
         self.fileOutputIPhone4 = [[AVCaptureMovieFileOutput alloc] init];
-        if (![self.session canAddOutput:self.fileOutputIPhone4]) return NO;
+        if (![self.session canAddOutput:self.fileOutputIPhone4]) return CameraControllerErrorUnableToAddFileOutput;
         [self.session addOutput:self.fileOutputIPhone4];
         
         self.videoConnectionIPhone4 = [self.fileOutputIPhone4 connectionWithMediaType:AVMediaTypeVideo];
@@ -160,24 +162,10 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     
     [self.session startRunning];
     
-    return YES;
+    return CameraControllerErrorNone;
 }
 
-- (void)setVideoAVCaptureOrientation:(AVCaptureVideoOrientation)orientation
-{
-    if (self.isUsingCustomPipeline)
-    {
-        self.videoConnection.videoOrientation = orientation;
-    }
-    else
-    {
-        self.videoConnectionIPhone4.videoOrientation = orientation;
-    }
-//    self.previewLayer.connection.videoOrientation = orientation;
-    self.videoOrientation = orientation;
-}
-
-- (BOOL)initializeAVAssetWriter:(NSURL *)fileURL
+- (CameraControllerError)initializeAVAssetWriter:(NSURL *)fileURL
 {
     DLog(@"initializeAVAssetWriter");
     // TODO is this necessary ?  maybe if we blow away the assetWriter without using it (i.e. switching cameras)
@@ -186,7 +174,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     // files have a .mp4 container but have a .mov extension for backward compatability.
     NSError *error;
     self.assetWriter = [[AVAssetWriter alloc] initWithURL:fileURL fileType:AVFileTypeMPEG4 error:&error];
-    if (error) return NO;
+    if (error) return CameraControllerErrorUnableToCreateAssetWriter;
     
     // Set custom meta data marking this as an Ubersense video that is already rotated
     [self setCustomMetaDataOnAsset:self.assetWriter];
@@ -201,24 +189,38 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     self.assetWriterVideoInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:newSettings];
     self.assetWriterVideoInput.expectsMediaDataInRealTime = YES;
     
-    if (![self.assetWriter canAddInput:self.assetWriterVideoInput]) return NO;
+    if (![self.assetWriter canAddInput:self.assetWriterVideoInput]) return CameraControllerErrorUnableToAddAssetWriterVideoInput;
     [self.assetWriter addInput:self.assetWriterVideoInput];
     
     NSDictionary *recommendedSettings = [self.audioOutput recommendedAudioSettingsForAssetWriterWithOutputFileType:AVFileTypeMPEG4];
     self.assetWriterAudioInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:recommendedSettings];
     self.assetWriterAudioInput.expectsMediaDataInRealTime = YES;
-    if (![self.assetWriter canAddInput:self.assetWriterAudioInput]) return NO;
+    if (![self.assetWriter canAddInput:self.assetWriterAudioInput]) return CameraControllerErrorUnableToAddAssetWriterAudioInput;
     [self.assetWriter addInput:self.assetWriterAudioInput];
     
     [self.videoOutput setSampleBufferDelegate:self queue:self.videoWritingQueue];
     [self.audioOutput setSampleBufferDelegate:self queue:self.audioWritingQueue];
     
     self.sourceTimeWrittenToMovie = NO;
-    return [self.assetWriter startWriting];
+    return [self.assetWriter startWriting] ? CameraControllerErrorNone : CameraControllerErrorUnableToStartWriting;
 }
 
 
 #pragma mark - configuration
+
+- (void)setVideoAVCaptureOrientation:(AVCaptureVideoOrientation)orientation
+{
+    if (self.isUsingCustomPipeline)
+    {
+        self.videoConnection.videoOrientation = orientation;
+    }
+    else
+    {
+        self.videoConnectionIPhone4.videoOrientation = orientation;
+    }
+    //    self.previewLayer.connection.videoOrientation = orientation;
+    self.videoOrientation = orientation;
+}
 
 - (void)cleanUpCameraInputAndOutput
 {
@@ -228,13 +230,13 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     [self.session removeOutput:self.videoOutput];
 }
 
-- (BOOL)setCameraWithPosition:(AVCaptureDevicePosition)position
+- (CameraControllerError)setCameraWithPosition:(AVCaptureDevicePosition)position
 {
     //if (self.state != CameraControllerStateRunning) return NO;
     
     [self cleanUpKVO];
     AVCaptureDevice *newCamera = [self getCamera:position];
-    if (newCamera == nil) return NO;
+    if (newCamera == nil) return CameraControllerErrorNoVideoDeviceFound;
     
     [self.session beginConfiguration];
     
@@ -245,14 +247,14 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     [self setUpKVO];
     
     self.cameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:self.camera error:nil];
-    if (!self.cameraInput || ![self.session canAddInput:self.cameraInput]) return NO;
+    if (!self.cameraInput || ![self.session canAddInput:self.cameraInput]) return CameraControllerErrorUnableToAddVideoInput;
     [self.session addInput:self.cameraInput];
     
     if (self.isUsingCustomPipeline)
     {
         self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
         [self.videoOutput setAlwaysDiscardsLateVideoFrames:NO];
-        if (![self.session canAddOutput:self.videoOutput]) return NO;
+        if (![self.session canAddOutput:self.videoOutput]) return CameraControllerErrorUnableToAddVideoOutput;
         [self.session addOutput:self.videoOutput];
         
         self.videoConnection = [self.videoOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -267,10 +269,10 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     }
     
     [self.session commitConfiguration];
-    return YES;
+    return CameraControllerErrorNone;
 }
 
-- (void)setActiveFormat:(AVCaptureDeviceFormat *)format
+- (CameraControllerError)setActiveFormat:(AVCaptureDeviceFormat *)format
 {
 //    if (self.state != CameraControllerStateRunning) return;
 
@@ -280,21 +282,31 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
         {
             self.camera.activeFormat = format;
             [self.camera unlockForConfiguration];
+            return CameraControllerErrorNone;
         }
+        else
+        {
+            return CameraControllerErrorUnableToLockForConfig;
+        }
+    }
+    else
+    {
+        return CameraControllerErrorInvalidFormat;
     }
 }
 
 
 #pragma mark - start/pause/resume/stop recording
 
-- (void)startRecordingWithFileURL:(NSURL *)fileURL
+- (CameraControllerError)startRecordingWithFileURL:(NSURL *)fileURL
 {
 //    if (self.state != CameraControllerStateRunning) return;
     
     self.fileURL = fileURL;
     if (self.isUsingCustomPipeline)
     {
-        [self initializeAVAssetWriter:self.fileURL];
+        CameraControllerError error = [self initializeAVAssetWriter:self.fileURL];
+        if (error != CameraControllerErrorNone) return error;
     }
     
     self.droppedFrameIndices = [NSMutableArray array];
@@ -310,6 +322,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     }
     
     self.recording = YES;
+    return CameraControllerErrorNone;
 }
 
 - (void)pauseRecording
