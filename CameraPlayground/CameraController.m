@@ -9,13 +9,14 @@ static void *IsAdjustingExposureContext = &IsAdjustingExposureContext;
 
 typedef NS_ENUM(NSInteger, CameraControllerState)
 {
+    CameraControllerStateUninitialized,
     CameraControllerStateInitializing,
-    CameraControllerStateRunning,
+    CameraControllerStateReady,
     CameraControllerStateStartingRecording,
-    CameraControllerStateWriting,
+    CameraControllerStateRecording,
     CameraControllerStatePaused,
-    CameraControllerStateFinalizingRecording,
-    CameraControllerStateCleaningUp
+    CameraControllerStateStoppingRecording,
+    CameraControllerStateError
 };
 
 #define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
@@ -75,6 +76,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
         self.isUsingCustomPipeline = isUsingCustomPipeline;
         self.videoWritingQueue = dispatch_queue_create("Video Capture Queue", DISPATCH_QUEUE_SERIAL);
         self.audioWritingQueue = dispatch_queue_create("Audio Capture Queue", DISPATCH_QUEUE_SERIAL);
+        self.state = CameraControllerStateUninitialized;
     }
     return self;
 }
@@ -94,14 +96,19 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     }
 }
 
-- (void)cleanUp
-{
-    DLog(@"TODO -- clean up");
-}
-
 #pragma mark - initialization
 
-- (CameraControllerError)initializeDevicesWithCameraPosition:(AVCaptureDevicePosition)cameraPosition
+- (CameraControllerError)initializeAVCaptureSessionWithCameraPosition:(AVCaptureDevicePosition)cameraPosition
+{
+    if (self.state != CameraControllerStateUninitialized) return CameraControllerErrorInvalidState;
+
+    self.state = CameraControllerStateInitializing;
+    CameraControllerError error = [self initializeAVCaptureSessionWithCameraPositionHelper:cameraPosition];
+    self.state = (error != CameraControllerErrorNone) ? CameraControllerStateReady : CameraControllerStateError;
+    return error;
+}
+
+- (CameraControllerError)initializeAVCaptureSessionWithCameraPositionHelper:(AVCaptureDevicePosition)cameraPosition
 {
     NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
     if (!devices || [devices count] == 0) return CameraControllerErrorNoAudioDeviceFound;
@@ -109,11 +116,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     self.camera = [self getCamera:cameraPosition];
     if (!self.camera) return CameraControllerErrorNoVideoDeviceFound;
     [self setUpKVO];
-    return CameraControllerErrorNone;
-}
 
-- (CameraControllerError)initializeAVCaptureSession
-{
     self.session = [[AVCaptureSession alloc] init];
     
     self.audioInput = [[AVCaptureDeviceInput alloc] initWithDevice:self.audioDevice error:nil];
@@ -208,8 +211,10 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 
 #pragma mark - configuration
 
-- (void)setVideoAVCaptureOrientation:(AVCaptureVideoOrientation)orientation
+- (CameraControllerError)setVideoAVCaptureOrientation:(AVCaptureVideoOrientation)orientation
 {
+    if (self.state != CameraControllerStateReady) return CameraControllerErrorInvalidState;
+    
     if (self.isUsingCustomPipeline)
     {
         self.videoConnection.videoOrientation = orientation;
@@ -220,6 +225,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     }
     //    self.previewLayer.connection.videoOrientation = orientation;
     self.videoOrientation = orientation;
+    return CameraControllerErrorNone;
 }
 
 - (void)cleanUpCameraInputAndOutput
@@ -232,7 +238,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 
 - (CameraControllerError)setCameraWithPosition:(AVCaptureDevicePosition)position
 {
-    //if (self.state != CameraControllerStateRunning) return NO;
+    if (self.state != CameraControllerStateReady) return CameraControllerErrorInvalidState;
     
     [self cleanUpKVO];
     AVCaptureDevice *newCamera = [self getCamera:position];
@@ -274,7 +280,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 
 - (CameraControllerError)setActiveFormat:(AVCaptureDeviceFormat *)format
 {
-//    if (self.state != CameraControllerStateRunning) return;
+    if (self.state != CameraControllerStateReady) return CameraControllerErrorInvalidState;
 
     if ([[self.camera formats] containsObject:format])
     {
@@ -300,7 +306,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 
 - (CameraControllerError)startRecordingWithFileURL:(NSURL *)fileURL
 {
-//    if (self.state != CameraControllerStateRunning) return;
+    if (self.state != CameraControllerStateReady) return CameraControllerErrorInvalidState;
     
     self.fileURL = fileURL;
     if (self.isUsingCustomPipeline)
@@ -325,9 +331,9 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     return CameraControllerErrorNone;
 }
 
-- (void)pauseRecording
+- (CameraControllerError)pauseRecording
 {
-//    if (self.state != CameraControllerStateWriting) return;
+    if (self.state != CameraControllerStateRecording) return CameraControllerErrorInvalidState;
 
     if (self.isUsingCustomPipeline)
     {
@@ -335,11 +341,12 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
         self.pauseStartTime = CACurrentMediaTime();
     }
     // otherwise: Disabling pause on iPhone 4 and when video recording doesn't use AVAssetWriter recording pipeline
+    return CameraControllerErrorNone; // TODO -- even if pause is disabled?
 }
 
-- (void)resumeRecording
+- (CameraControllerError)resumeRecording
 {
-//    if (self.state != CameraControllerStatePaused) return;
+    if (self.state != CameraControllerStatePaused) return CameraControllerErrorInvalidState;
     
     if (self.isUsingCustomPipeline)
     {
@@ -347,11 +354,14 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
         self.presentationTimeAdjustment += CACurrentMediaTime() - self.pauseStartTime;
     }
     // otherwise: Disabling pause on iPhone 4 and when video recording doesn't use AVAssetWriter recording pipeline
+    return CameraControllerErrorNone;
 }
 
-- (void)stopRecording
+- (CameraControllerError)stopRecording
 {
-//    if (self.state != CameraControllerStateWriting) return;
+    if (self.state != CameraControllerStateRecording) return CameraControllerErrorInvalidState;
+    
+    self.state = CameraControllerStateStoppingRecording;
     self.recording = NO;
     if (self.isUsingCustomPipeline)
     {
@@ -362,6 +372,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
             [self.assetWriter finishWritingWithCompletionHandler:^{
                 [self endBackgroundTask];
                 [self.delegate finishedRecordingWithURL:self.assetWriter.outputURL status:self.assetWriter.status];
+                self.state = CameraControllerStateReady;
             }];
         });
         DLog(@"number of dropped frames - %li, %@", (long)self.droppedFrameCount, self.droppedFrameIndices);
@@ -370,6 +381,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     {
         [self.fileOutputIPhone4 stopRecording];
     }
+    return CameraControllerErrorNone;
 }
 
 #pragma mark - zoom
@@ -541,6 +553,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
     [self endBackgroundTask];
     [self.delegate finishedRecordingIPhone4WithURL:outputFileURL error:error];
+    self.state = CameraControllerStateReady;
 }
 
 #pragma mark - debug aids

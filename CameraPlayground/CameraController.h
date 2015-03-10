@@ -18,7 +18,8 @@ typedef NS_ENUM(NSInteger, CameraControllerError)
     CameraControllerErrorUnableToAddAssetWriterAudioInput,
     CameraControllerErrorUnableToStartWriting,
     CameraControllerErrorInvalidFormat,
-    CameraControllerErrorUnableToLockForConfig
+    CameraControllerErrorUnableToLockForConfig,
+    CameraControllerErrorInvalidState
 };
 
 @protocol CameraControllerDelegate <NSObject>
@@ -36,38 +37,25 @@ typedef NS_ENUM(NSInteger, CameraControllerError)
 
 /*
  need to change:
- - focusmode
  - focus POI
- - exposuremode
  - exposure POI
- - exposure ISO
  - FPS, or sessionPreset, or format
- - front/back camera
- - zoom
  - torch
  
  methods
- - get everything ready
- - start
  - pause
  - resume
- - stop
- 
- also
- - camera observer for focus and exposure
  */
 - (instancetype)initWithUsingCustomPipeline:(BOOL)isUsingCustomPipeline;
 
-- (CameraControllerError)initializeDevicesWithCameraPosition:(AVCaptureDevicePosition)cameraPosition;
-- (CameraControllerError)initializeAVCaptureSession;
+- (CameraControllerError)initializeAVCaptureSessionWithCameraPosition:(AVCaptureDevicePosition)cameraPosition;
 //- (CameraControllerError)initializeAVAssetWriter:(NSURL *)fileURL;
 - (CameraControllerError)startRecordingWithFileURL:(NSURL *)fileURL;
-- (void)stopRecording;
-- (void)pauseRecording;
-- (void)resumeRecording;
-- (void)cleanUp;
+- (CameraControllerError)stopRecording;
+- (CameraControllerError)pauseRecording;
+- (CameraControllerError)resumeRecording;
 - (CameraControllerError)setActiveFormat:(AVCaptureDeviceFormat *)format;
-- (void)setVideoAVCaptureOrientation:(AVCaptureVideoOrientation)orientation;
+- (CameraControllerError)setVideoAVCaptureOrientation:(AVCaptureVideoOrientation)orientation;
 - (CameraControllerError)setCameraWithPosition:(AVCaptureDevicePosition)position;
 
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;

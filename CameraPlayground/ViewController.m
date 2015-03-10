@@ -41,13 +41,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.cameraController = [[CameraController alloc] initWithUsingCustomPipeline:YES];
-    CameraControllerError deviceError = [self.cameraController initializeDevicesWithCameraPosition:AVCaptureDevicePositionBack];
-    if (deviceError != CameraControllerErrorNone)
-    {
-        [self reportError:deviceError];
-        return;
-    }
-    CameraControllerError avSessionError = [self.cameraController initializeAVCaptureSession];
+    CameraControllerError avSessionError = [self.cameraController initializeAVCaptureSessionWithCameraPosition:AVCaptureDevicePositionBack];
     if (avSessionError != CameraControllerErrorNone)
     {
         [self reportError:avSessionError];
