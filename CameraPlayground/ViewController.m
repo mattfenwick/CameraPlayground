@@ -468,5 +468,68 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 
 #pragma mark - state
 
+- (void)logState:(AVCaptureDevice *)camera
+{
+    camera.activeFormat;
+    camera.activeVideoMaxFrameDuration;
+    camera.activeVideoMinFrameDuration;
+    camera.adjustingExposure;
+    camera.adjustingFocus;
+    camera.adjustingWhiteBalance;
+    camera.deviceWhiteBalanceGains;
+    camera.exposureDuration
+    camera.exposureMode
+    camera.exposurePointOfInterest
+    camera.exposurePointOfInterestSupported
+    camera.exposureTargetBias
+    camera.exposureTargetOffset
+    camera.flashActive
+    camera.flashAvailable
+    camera.flashMode
+    camera.focusMode
+    camera.focusPointOfInterest
+    camera.focusPointOfInterestSupported
+    camera.grayWorldDeviceWhiteBalanceGains
+    camera.hasFlash
+    camera.hasTorch
+    camera.isAdjustingExposure
+    camera.isAdjustingFocus
+    camera.isAdjustingWhiteBalance
+    camera.isAutoFocusRangeRestrictionSupported
+    camera.isConnected
+    camera.isExposurePointOfInterestSupported
+    camera.isFlashActive
+    camera.isFlashAvailable
+    camera.isFocusPointOfInterestSupported
+    camera.isLowLightBoostEnabled
+    camera.isLowLightBoostSupported
+    camera.ISO
+    camera.isRampingVideoZoom
+    camera.isSmoothAutoFocusEnabled
+    camera.isSmoothAutoFocusSupported
+    camera.isSubjectAreaChangeMonitoringEnabled // TODO possibly important!
+    camera.isTorchActive
+    camera.isTorchAvailable
+    camera.isVideoHDREnabled
+    camera.lensAperture
+    camera.lensPosition
+    camera.localizedName
+    camera.lowLightBoostEnabled
+    camera.lowLightBoostSupported
+    camera.maxExposureTargetBias
+    camera.maxWhiteBalanceGain
+    camera.minExposureTargetBias
+    camera.rampingVideoZoom
+    camera.smoothAutoFocusEnabled
+    camera.smoothAutoFocusSupported
+    camera.subjectAreaChangeMonitoringEnabled // TODO important!
+    camera.torchActive
+    camera.torchAvailable
+    camera.torchLevel
+    camera.torchMode
+    camera.videoHDREnabled
+    camera.videoZoomFactor
+    camera.whiteBalanceMode
+}
 
 @end
