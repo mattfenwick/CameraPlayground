@@ -74,19 +74,17 @@
             CameraControllerError startErrorCode = [controller startRecordingWithFileURL:url];
             if (startErrorCode == CameraControllerErrorNone)
             {
-                dispatch_after(0.5, dispatch_get_main_queue(), ^() {
-                    CameraControllerError stopErrorCode = [controller stopRecording];
-                    if (stopErrorCode == CameraControllerErrorNone)
-                    {
-                        count++;
-                        XCTAssert(YES, @"successfully started and stopped recording for format");
-                    }
-                    else
-                    {
-                        XCTAssert(NO, @"failed to stop recording for format");
-                        exitLoop = YES;
-                    }
-                });
+                CameraControllerError stopErrorCode = [controller stopRecording];
+                if (stopErrorCode == CameraControllerErrorNone)
+                {
+                    count++;
+                    XCTAssert(YES, @"successfully started and stopped recording for format");
+                }
+                else
+                {
+                    XCTAssert(NO, @"failed to stop recording for format");
+                    exitLoop = YES;
+                }
             }
             else
             {
