@@ -414,18 +414,9 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
             self.droppedFrameCount = 0;
             self.sourceTimeWrittenToMovie = YES;
             
-            // Start session source time about 200 ms ahead of current sample buffer time. The reason I am doing this
-            // is as follows: when the first sample buffer is written to the file, a few frames are dropped in the video input
-            // pipeline which results in a jittery start to the video playback for about 200 ms. By setting the source time to be ahead
-            // by 200 ms, frames will be written to the video but playback won't start 200 ms beyond the first frame. It should
-            // result in a smoother start to our video playback. 200 ms is a small enough duration that we will not lose a lot of detail
-            // in the output video.
             CMTime sourceTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-            
-            // sourceTime.timescale is roughly a second. So dividing by 5 will give us 200 milliseconds
-            CMTime modifiedSourceTime = CMTimeMake(sourceTime.value + sourceTime.timescale/5, sourceTime.timescale);
-            [self.assetWriter startSessionAtSourceTime:modifiedSourceTime];
-            DLog(@"started session at source time called");
+            [self.assetWriter startSessionAtSourceTime:sourceTime];
+            DLog(@"started session");
         }
         
         if (self.assetWriter.status == AVAssetWriterStatusWriting)
