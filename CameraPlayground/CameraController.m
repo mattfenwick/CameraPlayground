@@ -124,11 +124,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     [self.session addOutput:self.videoOutput];
     
     self.videoConnection = [self.videoOutput connectionWithMediaType:AVMediaTypeVideo];
-    // Disable auto stabilization because stablization introduces delays in video capture pipeline
-    if ([self.videoConnection isVideoStabilizationSupported])
-    {
-        self.videoConnection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeOff;
-    }
 
     // TODO does this always succeed?
     self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.session];
@@ -220,11 +215,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     [self.session addOutput:self.videoOutput];
     
     self.videoConnection = [self.videoOutput connectionWithMediaType:AVMediaTypeVideo];
-    // Disable auto stabilization because stablization introduces delays in video capture pipeline
-    if ([self.videoConnection isVideoStabilizationSupported])
-    {
-        self.videoConnection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeOff;
-    }
     // we're not *changing* the orientation, just setting the orientation of a new connection
     //   so we don't need to re-set-up the AVAssetWriter
     self.videoConnection.videoOrientation = self.videoOrientation;
