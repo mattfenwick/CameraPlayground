@@ -281,8 +281,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     self.droppedFrameIndices = [NSMutableArray array];
     self.frameIndex = 1;
 
-    [self startBackgroundTask];
-    
     self.currentRecordingStartTime = [NSDate date];
     
     self.recording = YES;
@@ -319,7 +317,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     DLog(@"stop recording -- %ld %@", self.assetWriter.status, self.assetWriter.error);
     dispatch_async(self.videoWritingQueue, ^{
         [self.assetWriter finishWritingWithCompletionHandler:^{
-            [self endBackgroundTask];
             [self.delegate finishedRecordingWithURL:self.assetWriter.outputURL status:self.assetWriter.status];
             self.state = CameraControllerStateReady;
         }];
@@ -498,29 +495,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 {
     DLog(@"sourceTime... new value: %d", sourceTimeWrittenToMovie);
     _sourceTimeWrittenToMovie = sourceTimeWrittenToMovie;
-}
-
-#pragma mark - background task
-
-- (void)startBackgroundTask
-{
-    self.backgroundTaskId = UIBackgroundTaskInvalid;
-    if ([[UIDevice currentDevice] respondsToSelector:@selector(isMultitaskingSupported)])
-    {
-        UIApplication *application = [UIApplication sharedApplication];
-        self.backgroundTaskId = [application beginBackgroundTaskWithExpirationHandler:^{
-            [application endBackgroundTask:self.backgroundTaskId];
-            self.backgroundTaskId = UIBackgroundTaskInvalid;
-        }];
-    }
-}
-
-- (void)endBackgroundTask
-{
-    if (self.backgroundTaskId != UIBackgroundTaskInvalid)
-    {
-        [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];
-    }
 }
 
 #pragma mark - KVO
