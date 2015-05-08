@@ -21,6 +21,9 @@
 @property (nonatomic, strong) IBOutlet UIButton *fpsMultiplierButton;
 @property (nonatomic, strong) IBOutlet UIButton *whiteBalanceButton;
 
+@property (nonatomic, strong) IBOutlet UIButton *previewOrientationButton;
+@property (nonatomic, strong) IBOutlet UIButton *recordingOrientationButton;
+
 @property (nonatomic, strong) IBOutlet UISlider *zoomSlider;
 @property (nonatomic, strong) IBOutlet UISlider *exposureSlider;
 
@@ -394,6 +397,48 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 - (NSUInteger)supportedInterfaceOrientations
 {
     return UIInterfaceOrientationMaskAll;
+}
+
+#pragma mark - setting preview/recording orientation
+
+- (IBAction)setPreviewOrientation:(id)sender
+{
+    NSLog(@"set preview orientation");
+    MWFActionSheet *sheet = [[MWFActionSheet alloc] initWithTitle:@"Set preview orientation" message:nil];
+    [sheet addButtonWithTitle:@"Portrait" style:MWFActionSheetActionStyleDefault handler:^() {
+        self.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortrait;
+    }];
+    [sheet addButtonWithTitle:@"Upside down" style:MWFActionSheetActionStyleDefault handler:^() {
+        self.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortraitUpsideDown;
+    }];
+    [sheet addButtonWithTitle:@"Landscape left" style:MWFActionSheetActionStyleDefault handler:^() {
+        self.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeLeft;
+    }];
+    [sheet addButtonWithTitle:@"Landscape right" style:MWFActionSheetActionStyleDefault handler:^() {
+        self.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationLandscapeRight;
+    }];
+    [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^(){}];
+    [sheet showFromRect:self.previewOrientationButton.bounds inView:self.previewOrientationButton animated:YES viewController:self];
+}
+
+- (IBAction)setRecordingOrientation:(id)sender
+{
+    NSLog(@"set recording orientation");
+    MWFActionSheet *sheet = [[MWFActionSheet alloc] initWithTitle:@"Set recording orientation" message:nil];
+    [sheet addButtonWithTitle:@"Portrait" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self.cameraController setVideoAVCaptureOrientation:AVCaptureVideoOrientationPortrait];
+    }];
+    [sheet addButtonWithTitle:@"Upside down" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self.cameraController setVideoAVCaptureOrientation:AVCaptureVideoOrientationPortraitUpsideDown];
+    }];
+    [sheet addButtonWithTitle:@"Landscape left" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self.cameraController setVideoAVCaptureOrientation:AVCaptureVideoOrientationLandscapeLeft];
+    }];
+    [sheet addButtonWithTitle:@"Landscape right" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self.cameraController setVideoAVCaptureOrientation:AVCaptureVideoOrientationLandscapeRight];
+    }];
+    [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^() {}];
+    [sheet showFromRect:self.recordingOrientationButton.bounds inView:self.recordingOrientationButton animated:YES viewController:self];
 }
 
 #pragma mark - CameraControllerDelegate
