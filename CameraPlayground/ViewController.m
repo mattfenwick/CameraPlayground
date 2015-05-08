@@ -23,6 +23,7 @@
 
 @property (nonatomic, strong) IBOutlet UIButton *previewOrientationButton;
 @property (nonatomic, strong) IBOutlet UIButton *recordingOrientationButton;
+@property (nonatomic, strong) IBOutlet UIButton *durationMultiplierButton;
 
 @property (nonatomic, strong) IBOutlet UISlider *zoomSlider;
 @property (nonatomic, strong) IBOutlet UISlider *exposureSlider;
@@ -439,6 +440,42 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
     }];
     [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^() {}];
     [sheet showFromRect:self.recordingOrientationButton.bounds inView:self.recordingOrientationButton animated:YES viewController:self];
+}
+
+#pragma mark - exposure duration
+
+- (IBAction)exposureMultiplierTapped:(id)sender
+{
+    NSLog(@"exposure multiplier tapped");
+    MWFActionSheet *sheet = [[MWFActionSheet alloc] initWithTitle:@"Set exposure multiplier" message:nil];
+    [sheet addButtonWithTitle:@"Double" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setDurationMultiplier:YES];
+    }];
+    [sheet addButtonWithTitle:@"Halve" style:MWFActionSheetActionStyleDefault handler:^() {
+        [self setDurationMultiplier:NO];
+    }];
+    [sheet addButtonWithTitle:@"Cancel" style:MWFActionSheetActionStyleCancel handler:^() {}];
+    [sheet showFromRect:self.durationMultiplierButton.bounds inView:self.durationMultiplierButton animated:YES viewController:self];
+}
+
+- (void)setDurationMultiplier:(BOOL)doubleDuration
+{
+    CMTime oldDuration = self.cameraController.camera.exposureDuration;
+    CMTime newDuration;
+    if (doubleDuration)
+    {
+        newDuration = CMTimeMake(oldDuration.value * 2, oldDuration.timescale);
+    }
+    else
+    {
+        newDuration = CMTimeMake(oldDuration.value, oldDuration.timescale * 2);
+    }
+    float iso = self.cameraController.camera.ISO;
+    if ([self.cameraController.camera lockForConfiguration:nil])
+    {
+        [self.cameraController.camera setExposureModeCustomWithDuration:newDuration ISO:iso completionHandler:^(CMTime syncTime) {}];
+        [self.cameraController.camera unlockForConfiguration];
+    }
 }
 
 #pragma mark - CameraControllerDelegate
