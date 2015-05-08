@@ -37,12 +37,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 @property (nonatomic, strong) AVCaptureConnection *videoConnection;
 @property (nonatomic, strong) AVCaptureConnection *audioConnection;
 
-@property (nonatomic, strong) AVCaptureMovieFileOutput *fileOutputIPhone4;
-@property (nonatomic, strong) AVCaptureConnection *videoConnectionIPhone4;
-
 @property (nonatomic, strong) NSURL *fileURL;
-
-@property (nonatomic) UIBackgroundTaskIdentifier backgroundTaskId;
 
 @property (nonatomic) dispatch_queue_t videoWritingQueue;
 @property (nonatomic) dispatch_queue_t audioWritingQueue;
