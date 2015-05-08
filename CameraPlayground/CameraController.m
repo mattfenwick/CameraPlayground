@@ -85,7 +85,7 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     [self.session stopRunning];
     [self.session removeInput:self.cameraInput];
     [self.session removeInput:self.audioInput];
-    [self cleanUpKVO];
+    self.camera = nil;
 }
 
 #pragma mark - initialization
@@ -107,7 +107,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     self.audioDevice = devices[0];
     self.camera = [self getCamera:cameraPosition];
     if (!self.camera) return CameraControllerErrorNoVideoDeviceFound;
-    [self setUpKVO];
 
     self.session = [[AVCaptureSession alloc] init];
     
@@ -199,8 +198,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 
 - (void)cleanUpCameraInputAndOutput
 {
-    // TODO maybe clean up camera observers here
-    
     [self.session removeInput:self.cameraInput];
     [self.session removeOutput:self.videoOutput];
 }
@@ -209,7 +206,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
 {
 //    if (self.state != CameraControllerStateReady) return CameraControllerErrorInvalidState;
     
-    [self cleanUpKVO];
     AVCaptureDevice *newCamera = [self getCamera:position];
     if (newCamera == nil) return CameraControllerErrorNoVideoDeviceFound;
     
@@ -218,8 +214,6 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     [self cleanUpCameraInputAndOutput];
 
     self.camera = newCamera;
-    
-    [self setUpKVO];
     
     self.cameraInput = [[AVCaptureDeviceInput alloc] initWithDevice:self.camera error:nil];
     if (!self.cameraInput || ![self.session canAddInput:self.cameraInput]) return CameraControllerErrorUnableToAddVideoInput;
@@ -497,19 +491,20 @@ typedef NS_ENUM(NSInteger, CameraControllerState)
     _sourceTimeWrittenToMovie = sourceTimeWrittenToMovie;
 }
 
+#pragma mark - setters
+
+- (void)setCamera:(AVCaptureDevice *)camera
+{
+    [_camera removeObserver:self forKeyPath:@"adjustingFocus"];
+    [_camera removeObserver:self forKeyPath:@"adjustingExposure"];
+    
+    _camera = camera;
+    
+    [_camera addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:IsAdjustingFocusingContext];
+    [_camera addObserver:self forKeyPath:@"adjustingExposure" options:NSKeyValueObservingOptionNew context:IsAdjustingExposureContext];
+}
+
 #pragma mark - KVO
-
-- (void)cleanUpKVO
-{
-    [self.camera removeObserver:self forKeyPath:@"adjustingFocus"];
-    [self.camera removeObserver:self forKeyPath:@"adjustingExposure"];
-}
-
-- (void)setUpKVO
-{
-    [self.camera addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:IsAdjustingFocusingContext];
-    [self.camera addObserver:self forKeyPath:@"adjustingExposure" options:NSKeyValueObservingOptionNew context:IsAdjustingExposureContext];
-}
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
