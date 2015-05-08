@@ -25,8 +25,6 @@ typedef NS_ENUM(NSInteger, CameraControllerError)
 @protocol CameraControllerDelegate <NSObject>
 
 - (void)finishedRecordingWithURL:(NSURL *)fileURL status:(AVAssetWriterStatus)status;
-- (void)finishedRecordingIPhone4WithURL:(NSURL *)fileURL error:(NSError *)error;
-
 - (void)adjustingFocus;
 - (void)adjustingExposure;
 
@@ -46,7 +44,7 @@ typedef NS_ENUM(NSInteger, CameraControllerError)
  - pause
  - resume
  */
-- (instancetype)initWithUsingCustomPipeline:(BOOL)isUsingCustomPipeline;
+- (instancetype)init;
 
 - (CameraControllerError)initializeAVCaptureSessionWithCameraPosition:(AVCaptureDevicePosition)cameraPosition;
 //- (CameraControllerError)initializeAVAssetWriter:(NSURL *)fileURL;

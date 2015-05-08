@@ -40,7 +40,7 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.cameraController = [[CameraController alloc] initWithUsingCustomPipeline:YES];
+    self.cameraController = [[CameraController alloc] init];
     CameraControllerError avSessionError = [self.cameraController initializeAVCaptureSessionWithCameraPosition:AVCaptureDevicePositionBack];
     if (avSessionError != CameraControllerErrorNone)
     {
@@ -406,11 +406,6 @@ static void *IsAdjustingFocusingContext = &IsAdjustingFocusingContext;
 - (void)adjustingFocus
 {
     NSLog(@"adjusting focus");
-}
-
-- (void)finishedRecordingIPhone4WithURL:(NSURL *)fileURL error:(NSError *)error
-{
-    
 }
 
 - (void)finishedRecordingWithURL:(NSURL *)fileURL status:(AVAssetWriterStatus)status

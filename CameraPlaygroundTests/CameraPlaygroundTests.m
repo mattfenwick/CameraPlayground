@@ -59,7 +59,7 @@
 
 - (void)testFormats
 {
-    CameraController *controller = [[CameraController alloc] initWithUsingCustomPipeline:YES];
+    CameraController *controller = [[CameraController alloc] init];
     [controller initializeAVCaptureSessionWithCameraPosition:AVCaptureDevicePositionBack];
     [controller setVideoAVCaptureOrientation:AVCaptureVideoOrientationPortrait];
     __block NSInteger count = 1;
